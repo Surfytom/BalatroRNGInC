@@ -18,12 +18,33 @@
     <ClCompile Include="main.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="HashMapLib\hashmap.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="instance.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="randomutils.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="packs.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Instance.h">
+    <ClInclude Include="instance.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="items.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="packs.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="HashMapLib\hashmap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="randomutils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

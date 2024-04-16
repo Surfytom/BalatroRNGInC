@@ -1,72 +1,94 @@
+#ifndef INSTANCE_H
+#define INSTANCE_H
 #pragma once
 
-typedef struct Instance {
-	char** locked;
-	char* seed;
-	double* hashedSeed;
+#include <stdarg.h>
+#include "HashMapLib/hashmap.h"
+#include "randomutils.h"
 
+typedef struct CharArray {
+	char** array;
+	int size;
+} CharArray;
+
+typedef struct Card {
+	int suit;
+	int rank;
+	int effect;
+	int bonus;
+	int seal;
+} Card;
+
+typedef struct CardArray {
+	Card** array;
+	size_t size;
+} CardArray;
+
+typedef struct Instance {
+	hashmap* NodeMap;
+	CardArray* deck;
+	char* seed;
+	double hashedSeed;
+	char ante;
 } Instance;
 
+char* CombineChars(int count, ...);
 
-/*
+Instance* InstanceCreate(char* seed);
+void InstanceDelete(Instance* ip);
 
-psedo hash the seed and save the original seed and hashed seed
-	if erratic deck start pseudorandom the deck
+entry* NodeIDGet(Instance* ip, char* id);
+bool NodeIDInsert(Instance* ip, char* id, double value);
+bool NodeIDRemove(Instance* ip, char* id);
+double NodeIDRandom(Instance* ip, char* id, char* seed, double hashedseed);
 
+char* GetSeal(int n);
 
-*/
-
-const char** BASE_DECK[52] = {
-	"H_2",
-	"H_3",
-	"H_4",
-	"H_5",
-	"H_6",
-	"H_7",
-	"H_8",
-	"H_9",
-	"H_T",
-	"H_J",
-	"H_Q",
-	"H_K",
-	"H_A",
-	"C_2",
-	"C_3",
-	"C_4",
-	"C_5",
-	"C_6",
-	"C_7",
-	"C_8",
-	"C_9",
-	"C_T",
-	"C_J",
-	"C_Q",
-	"C_K",
-	"C_A",
-	"D_2",
-	"D_3",
-	"D_4",
-	"D_5",
-	"D_6",
-	"D_7",
-	"D_8",
-	"D_9",
-	"D_T",
-	"D_J",
-	"D_Q",
-	"D_K",
-	"D_A",
-	"S_2",
-	"S_3",
-	"S_4",
-	"S_5",
-	"S_6",
-	"S_7",
-	"S_8",
-	"S_9",
-	"S_T",
-	"S_J",
-	"S_Q",
-	"S_K",
-	"S_A",
+typedef enum SUITS {
+	Spades,
+	Hearts,
+	Clubs,
+	Diamonds
 };
+
+typedef enum RANKS {
+	two,
+	three,
+	four,
+	five,
+	six,
+	seven,
+	eight,
+	nine,
+	ten,
+	jack,
+	queen,
+	king,
+	ace
+};
+
+typedef enum BONUSES {
+	chips,
+	multiplyBonus,
+	goldBonus,
+	steel
+};
+
+typedef enum EFFECTS {
+	multiplyEffect,
+	polychrome,
+	foil
+};
+
+typedef enum SEALS {
+	goldSeal,
+	red,
+	blue
+};
+
+
+extern char** SUITS[4];
+
+extern char** BASE_DECK[52];
+
+#endif

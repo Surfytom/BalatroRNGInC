@@ -104,6 +104,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalOptions>/D _CRT_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -127,11 +128,18 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="HashMapLib\hashmap.c" />
+    <ClCompile Include="instance.c" />
     <ClCompile Include="main.c" />
+    <ClCompile Include="packs.c" />
+    <ClCompile Include="randomutils.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Instance.h" />
+    <ClInclude Include="HashMapLib\hashmap.h" />
+    <ClInclude Include="instance.h" />
     <ClInclude Include="items.h" />
+    <ClInclude Include="packs.h" />
+    <ClInclude Include="randomutils.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

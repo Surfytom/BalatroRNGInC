@@ -1,1 +1,1 @@
-# RNGFromScratch
+# Balatro RNG System from scratch in C

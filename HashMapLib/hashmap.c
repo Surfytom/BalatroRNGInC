@@ -68,7 +68,7 @@ entry* HashMapInsert(hashmap* hmp, char* key, double value) {
 		free(e);
 		return NULL;
 	}
-	printf("\nSize of %s: %zu", key, strlen(key));
+	printf("\nHASHMAP INSERT | Size of '%s': %zu", key, strlen(key));
 	strcpy_s(e->key, strlen(key) + 1, key);
 
 	e->value = value;

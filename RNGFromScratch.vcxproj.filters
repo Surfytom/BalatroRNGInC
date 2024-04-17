@@ -30,6 +30,9 @@
     <ClCompile Include="packs.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="temp.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="instance.h">

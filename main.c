@@ -12,25 +12,97 @@
 
 const size_t HASHMAPSIZE = 100;
 
+/*
+for comparing ante as an int
+if (ante[0] - '0' == 1) {
+	printf("\nITS TRUE");
+}
+*/
+
 int main() {
 
-	char* testKey = "hello";
-	char* test = "hihello";
+	char* testKey = "ABC";
 
-	Instance* ip = InstanceCreate(testKey);
+	Instance* ip = InstanceCreate(testKey, HASHMAPSIZE);
+	
+	char* c = NULL;
+	int randomPackIndex = 0;
 
-	char* node1 = "hi";
+	uint64_t card = 0;
+	uint64_t* cards = malloc(sizeof(uint64_t) * 5);
+	// With tarots the card that has just been rolled gets locked before rolling for the next card
+	// Implement the ability to get tarot cards
 
-	HashMapPrint(ip->NodeMap);
+	for (int i = 0; i < 2; i++) {
+		randomPackIndex = GetRandomPack(ip);
 
-	entry* e = NodeIDInsert(ip, node1, -1.0);
+		GetCardsFromPack(ip, cards, randomPackIndex);
 
-	double val = NodeIDRandom(ip, node1, testKey, PseudoHashChar(testKey));
+		printf("\nPACK %s", PACKS[randomPackIndex].type);
+		for (int j = 0; j < PACKS[randomPackIndex].size; j++) {
+			printf("\nCard %d: %" PRIu64, j, cards[j]);
+		}
 
-	HashMapPrint(ip->NodeMap);
+		printf("\n");
+	}
 
+	free(cards);
+
+	/*
+	for (int j = 0; j < 2; j++) {
+
+		randomPackIndex = GetRandomPack(ip);
+
+		for (int i = 0; i < PACKS[randomPackIndex].size; i++) {
+
+			card = CreateCard(ip, PACKS[randomPackIndex].type, PACKS[randomPackIndex].start, PACKS[randomPackIndex].end, 0, NULL, PACKS[randomPackIndex].key);
+			
+			int resample = 1;
+			bool foundUniqueCard = false;
+			while (!foundUniqueCard) {
+				bool inCards = false;
+				for (int t = 0; t < i; t++) {
+					if (card == cards[t]) {
+						inCards = true;
+					}
+				}
+
+				if (inCards) {
+
+					char* resampleIt = malloc(sizeof(char) * 2);
+					resampleIt[0] = (resample % 10) + '0';
+					resampleIt[1] = '\0';
+
+					char* re = "_resample";
+					char* resampleChar = CombineChars(4, PACKS[randomPackIndex].key, re, resampleIt, ip->seed);
+
+					card = CreateCard(ip, PACKS[randomPackIndex].type, PACKS[randomPackIndex].start, PACKS[randomPackIndex].end, 0, NULL, resampleChar);
+
+					resample++;
+
+					free(resampleIt);
+					free(resampleChar);
+				}
+				else {
+					foundUniqueCard = true;
+				}
+			}
+
+			cards[i] = card;
+
+			c = GetPack(randomPackIndex);
+
+			printf("\nPack: %s card: %" PRIu64, c, PACKS[randomPackIndex].start + card);
+			printf(" start: %d end : %d", PACKS[randomPackIndex].start, PACKS[randomPackIndex].end);
+
+			free(c);
+		}
+
+		printf("\n");
+	}*/
+	
 	InstanceDelete(ip);
-
+	
 	/*
 	size_t size = 2;
 	

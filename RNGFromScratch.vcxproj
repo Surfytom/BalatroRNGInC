@@ -133,6 +133,7 @@
     <ClCompile Include="main.c" />
     <ClCompile Include="packs.c" />
     <ClCompile Include="randomutils.c" />
+    <ClCompile Include="temp.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="HashMapLib\hashmap.h" />

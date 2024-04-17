@@ -1,7 +1,6 @@
 #include "instance.h"
 #include "packs.h"
 
-
 char** SUITS[4] = {
 	"Spades",
 	"Hearts",
@@ -106,7 +105,7 @@ char* CombineChars(int count, ...) {
 	return combinedChar;
 }
 
-Instance* InstanceCreate(char* seed) {
+Instance* InstanceCreate(char* seed, size_t hashMapSize) {
 
 	Instance* ip = malloc(sizeof(Instance));
 
@@ -114,8 +113,25 @@ Instance* InstanceCreate(char* seed) {
 		return NULL;
 	}
 
-	ip->seed = seed;
-	ip->hashedSeed = PseudoHashChar(seed);
+	ip->seed = malloc(strlen(seed) + 1);
+
+	if (ip->seed == NULL) {
+		free(ip);
+		return NULL;
+	}
+
+	strcpy_s(ip->seed, strlen(seed) + 1, seed);
+	ip->hashedSeed = PseudoHashChar(ip->seed);
+
+	ip->ante = malloc(sizeof(char) * 2);
+
+	if (ip->ante == NULL) {
+		free(ip);
+		free(ip->seed);
+		return NULL;
+	}
+
+	strcpy_s(ip->ante, 2, "1");
 
 	ip->deck = malloc(sizeof(CardArray));
 
@@ -128,7 +144,7 @@ Instance* InstanceCreate(char* seed) {
 
 	ip->deck->array = calloc(ip->deck->size, sizeof(Card*));
 
-	ip->NodeMap = HashMapCreate(30);
+	ip->NodeMap = HashMapCreate(hashMapSize);
 
 	return ip;
 }
@@ -141,6 +157,9 @@ void InstanceDelete(Instance* ip) {
 
 	free(ip->deck->array);
 	free(ip->deck);
+
+	free(ip->seed);
+	free(ip->ante);
 
 	HashMapDelete(ip->NodeMap);
 
@@ -159,26 +178,12 @@ bool NodeIDRemove(Instance* ip, char* id) {
 	return HashMapRemove(ip->NodeMap, id);
 }
 
-double NodeIDRandom(Instance* ip, char* id, char* seed, double hashedSeed) {
-	// The num if is for if the node has already been calculated and therefore dosent need to be reset and instead re-rolled
+double NodeIDRandom(Instance* ip, char* id) {
 
-	// Keep track of the rng states of nodes
-	// If a key is passed that has already been hashed then you need to use the saved rng state not make a new one
-
-	size_t bufferSize = sizeof(char) * (strlen(id) + strlen(seed) + 1);
-	char* combineChar = malloc(bufferSize);
-
-	if (combineChar == NULL) {
-		return -1.0;
-	}
-
-	strcpy_s(combineChar, bufferSize, id);
-	strcat_s(combineChar, bufferSize, seed);
-
-	entry* e = HashMapGet(ip->NodeMap, combineChar);
+	entry* e = HashMapGet(ip->NodeMap, id);
 
 	if (e == NULL) {
-		e = HashMapInsert(ip->NodeMap, combineChar, -1.0);
+		e = HashMapInsert(ip->NodeMap, id, -1.0);
 
 		if (e == NULL) {
 			return -1.0;
@@ -186,17 +191,229 @@ double NodeIDRandom(Instance* ip, char* id, char* seed, double hashedSeed) {
 	}
 
 	if (e->value < 0.0) {
-		e->value = PseudoHashChar(combineChar);
+		e->value = PseudoHashChar(id);
 	}
 
-	free(combineChar);
-
-	// num needs to be saved as somehow
 	e->value = RoundDigits(fract(e->value * 1.72431234 + 2.134453429141), 13);
 
-	printf("\nRng state: %0.10f", e->value);
+	printf("\nNODEID UPDATE | state of '%s': %0.10f", id, e->value);
 
-	return (e->value + hashedSeed) / 2;
+	return (e->value + ip->hashedSeed) / 2;
+}
+
+uint64_t RandomChoice(Instance* ip, char* id, uint64_t min, uint64_t max) {
+
+	char* combinedChar = CombineChars(2, id, ip->seed);
+
+	if (combinedChar == NULL) {
+		return -1;
+	}
+
+	int64_t* state = RandomStateFromSeed(NodeIDRandom(ip, combinedChar));
+
+	combinedChar = NULL;
+	free(combinedChar);
+
+	return RandomInt(state, min, max);
+}
+
+int GetRandomPack(Instance* ip) {
+	char* packSeed = "shop_pack";
+
+	double it = 0.0;
+	int center = 0;
+
+	char* combinedChar = CombineChars(3, packSeed, ip->ante, ip->seed);
+
+	if (combinedChar == NULL) {
+		return -1;
+	}
+
+	int64_t* state = RandomStateFromSeed(NodeIDRandom(ip, combinedChar));
+
+	free(combinedChar);
+
+	dbllong poll = RandomDouble(state);
+
+	free(state);
+
+	poll.d *= PACKS[0].weight;
+
+	int idx = 1;
+	while (it < poll.d) {
+		it += PACKS[idx].weight;
+		idx++;
+	}
+
+	return idx - 1;
+}
+
+char* GetPool(Instance* ip, char* type, int typeStart, int typeEnd, int rarity, char* keyAppend, uint64_t* poolArray) {
+
+	char* poolKey = NULL;
+
+	int poolStart = 0;
+	int poolEnd = 0;
+
+	if (typeStart == JOKERSTART) {
+
+		char* rarity = "rarity";
+
+		char* combinedChar = CombineChars(3, rarity, ip->ante, keyAppend);
+
+		int64_t* state = RandomStateFromSeed(NodeIDRandom(ip, combinedChar, ip->hashedSeed));
+
+		dbllong dbl = RandomDouble(state);
+
+		free(state);
+
+		if (dbl.d > 0.95) {
+			poolStart = JOKER3START;
+			poolEnd = JOKER3END;
+			rarity = "3";
+		}
+		else if (dbl.d > 0.7) {
+			poolStart = JOKER2START;
+			poolEnd = JOKER2END;
+			rarity = "2";
+		}
+		else {
+			poolStart = JOKER1START;
+			poolEnd = JOKER1END;
+			rarity = "1";
+		}
+
+		char* j = "Joker";
+
+		poolKey = CombineChars(3, j, rarity, keyAppend);
+	}
+	else {
+
+		poolStart = typeStart;
+		poolEnd = typeEnd;
+		poolKey = CombineChars(2, type, keyAppend);
+	}
+
+	char* returnKey = CombineChars(3, poolKey, ip->ante, ip->seed);
+
+	free(poolKey);
+
+	poolArray[0] = poolStart;
+	poolArray[1] = poolEnd;
+
+	return returnKey;
+}
+
+uint64_t CreateCard(Instance* ip, char* type, int typeStart, int typeEnd, int rarity, char* forcedKey, char* keyAppend) {
+
+	uint64_t* state = NULL;
+
+	if (typeStart == PLANETSTART || typeStart == TAROTSTART || typeStart == PLANETSTART || typeStart == SPECTRALSTART) {
+
+		char* soulChar = "soul_";
+
+		char* combinedSoulChar = CombineChars(4, soulChar, type, ip->ante, ip->seed);
+
+		if (typeStart == TAROTSTART || typeStart == SPECTRALSTART) {
+			// Roll for soul
+			state = RandomStateFromSeed(NodeIDRandom(ip, combinedSoulChar, ip->hashedSeed));
+			dbllong dbl = RandomDouble(state);
+			free(state);
+
+			if (dbl.d > 0.997) {
+				return c_soul;
+			}
+		}
+		if (typeStart == PLANETSTART || typeStart == SPECTRALSTART) {
+			// Roll for black hole
+			state = RandomStateFromSeed(NodeIDRandom(ip, combinedSoulChar, ip->hashedSeed));
+			dbllong dbl = RandomDouble(state);
+			free(state);
+
+			if (dbl.d > 0.997) {
+				return c_black_hole;
+			}
+		}
+
+		free(combinedSoulChar);
+	}
+
+	uint64_t* rangeValues = malloc(sizeof(uint64_t) * 2);
+
+	if (rangeValues == NULL) {
+		return NULL;
+	}
+
+	char* returnKey = NULL;
+	returnKey = GetPool(ip, type, typeStart, typeEnd, rarity, keyAppend, rangeValues, returnKey);
+
+	state = RandomStateFromSeed(NodeIDRandom(ip, returnKey, ip->hashedSeed));
+
+	uint64_t h = (uint64_t)typeStart;
+	uint64_t p = (uint64_t)typeEnd;
+
+	printf("\nDiff: %" PRIu64, (p - h) + 1);
+
+	int64_t returnInt = RandomInt(state, 1, (p - h) - 1);
+	
+	// make sure to free these in the loop to not lose pointers
+	free(rangeValues);
+	free(state);
+	free(returnKey);
+
+	return returnInt;
+}
+
+void GetCardsFromPack(Instance* ip, uint64_t* cards, int packIdx) {
+
+	char* c = NULL;
+
+	uint64_t card = 0;
+
+	for (int i = 0; i < PACKS[packIdx].size; i++) {
+
+		card = CreateCard(ip, PACKS[packIdx].type, PACKS[packIdx].start, PACKS[packIdx].end, 0, NULL, PACKS[packIdx].key);
+
+		int resample = 1;
+		bool foundUniqueCard = false;
+		while (!foundUniqueCard) {
+			bool inCards = false;
+			for (int t = 0; t < i; t++) {
+				if (card == cards[t]) {
+					inCards = true;
+				}
+			}
+
+			if (inCards) {
+
+				char* resampleIt = malloc(sizeof(char) * 2);
+				resampleIt[0] = (resample % 10) + '0';
+				resampleIt[1] = '\0';
+
+				char* re = "_resample";
+				char* resampleChar = CombineChars(4, PACKS[packIdx].key, re, resampleIt, ip->seed);
+
+				card = CreateCard(ip, PACKS[packIdx].type, PACKS[packIdx].start, PACKS[packIdx].end, 0, NULL, resampleChar);
+
+				resample++;
+
+				free(resampleIt);
+				free(resampleChar);
+			}
+			else {
+				foundUniqueCard = true;
+			}
+		}
+
+		cards[i] = card;
+
+		c = GetPack(packIdx);
+
+		printf("\nPack: %s card: %" PRIu64, c, PACKS[packIdx].start + card);
+		printf(" start: %d end : %d", PACKS[packIdx].start, PACKS[packIdx].end);
+
+		free(c);
+	}
 }
 
 char* GetSuit(int n) {

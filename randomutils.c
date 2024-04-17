@@ -54,7 +54,7 @@ uint64_t* RandomStateFromSeed(double seed) {
 	double d = seed;
 	uint32_t r = 0x11090601;
 
-	uint64_t* state = malloc(sizeof(uint64_t*) * 4);
+	uint64_t* state = malloc(sizeof(uint64_t) * 4);
 
 	if (state == NULL) {
 		return NULL;

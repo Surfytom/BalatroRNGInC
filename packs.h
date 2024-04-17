@@ -4,6 +4,7 @@
 
 #include <stddef.h>
 #include <inttypes.h>
+#include <stdlib.h>
 
 extern char NUMOFPACKS;
 
@@ -29,6 +30,11 @@ typedef enum pack {
 typedef struct WeightedItem {
     pack _item;
     double weight;
+    int size;
+    int start;
+    int end;
+    char* type;
+    char* key;
 } weighteditem;
 
 typedef struct Joker {
@@ -38,9 +44,11 @@ typedef struct Joker {
 
 extern weighteditem PACKS[16];
 
+char* GetPackKey(int n);
+char* GetPackType(int n);
 char* GetPack(int n);
 
-typedef enum JOKERS {
+typedef enum Item {
     JOKERSTART,
 
     JOKER1START,

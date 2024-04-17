@@ -49,6 +49,8 @@ char* GetPackType(int n);
 char* GetPack(int n);
 
 typedef enum Item {
+    retry,
+
     JOKERSTART,
 
     JOKER1START,

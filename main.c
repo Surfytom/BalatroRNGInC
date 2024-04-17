@@ -19,9 +19,20 @@ if (ante[0] - '0' == 1) {
 }
 */
 
+// TODO: check if spectral packs work when getting cards from them
+// Same but with joker packs - potentially done
+// Same with planet packs
+// Same with standard packs
+// Create function to generate shop cards
+// Implement vouchers
+// Seed searcher
+
+// Ideas
+// - Cards are a struct with certain attributes such as the soul
+// - You can then call a function to use these cards to see what they will reveal
 int main() {
 
-	char* testKey = "ABC";
+	char* testKey = "WCNGZX2R";
 
 	Instance* ip = InstanceCreate(testKey, HASHMAPSIZE);
 	
@@ -30,8 +41,6 @@ int main() {
 
 	uint64_t card = 0;
 	uint64_t* cards = malloc(sizeof(uint64_t) * 5);
-	// With tarots the card that has just been rolled gets locked before rolling for the next card
-	// Implement the ability to get tarot cards
 
 	for (int i = 0; i < 2; i++) {
 		randomPackIndex = GetRandomPack(ip);
@@ -42,7 +51,6 @@ int main() {
 		for (int j = 0; j < PACKS[randomPackIndex].size; j++) {
 			printf("\nCard %d: %" PRIu64, j, cards[j]);
 		}
-
 		printf("\n");
 	}
 

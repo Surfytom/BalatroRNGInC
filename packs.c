@@ -13,12 +13,12 @@ weighteditem PACKS[16] = {
    {Standard_Pack, 4, 3, JOKERSTART, JOKEREND, "Base", "stdset"},
    {Jumbo_Standard_Pack, 2, 5, JOKERSTART, JOKEREND, "Base", "stdset"},
    {Mega_Standard_Pack, 0.5, 5, JOKERSTART, JOKEREND, "Base", "stdset"},
-   {Buffoon_Pack, 1.2, 3, JOKERSTART, JOKEREND, "Joker", "buf"},
-   {Jumbo_Buffoon_Pack, 0.6, 5, JOKERSTART, JOKEREND, "Joker", "buf"},
-   {Mega_Buffoon_Pack, 0.15, 5, JOKERSTART, JOKEREND, "Joker", "buf"},
-   {Spectral_Pack, 0.6, 5, SPECTRALSTART, SPECTRALEND, "Spectral", "ar2"},
-   {Jumbo_Spectral_Pack, 0.3, 5, SPECTRALSTART, SPECTRALEND, "Spectral", "ar2"},
-   {Mega_Spectral_Pack, 0.07, 5, SPECTRALSTART, SPECTRALEND, "Spectral", "ar2"}
+   {Buffoon_Pack, 1.2, 2, JOKERSTART, JOKEREND, "Joker", "buf"},
+   {Jumbo_Buffoon_Pack, 0.6, 4, JOKERSTART, JOKEREND, "Joker", "buf"},
+   {Mega_Buffoon_Pack, 0.15, 4, JOKERSTART, JOKEREND, "Joker", "buf"},
+   {Spectral_Pack, 0.6, 2, SPECTRALSTART, SPECTRALEND, "Spectral", "spe"},
+   {Jumbo_Spectral_Pack, 0.3, 4, SPECTRALSTART, SPECTRALEND, "Spectral", "spe"},
+   {Mega_Spectral_Pack, 0.07, 4, SPECTRALSTART, SPECTRALEND, "Spectral", "spe"}
 };
 
 char* GetPackKey(int n) {

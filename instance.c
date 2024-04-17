@@ -259,12 +259,13 @@ char* GetPool(Instance* ip, char* type, int typeStart, int typeEnd, int rarity, 
 
 		char* rarity = "rarity";
 
-		char* combinedChar = CombineChars(3, rarity, ip->ante, keyAppend);
+		char* combinedChar = CombineChars(4, rarity, ip->ante, keyAppend, ip->seed);
 
 		int64_t* state = RandomStateFromSeed(NodeIDRandom(ip, combinedChar, ip->hashedSeed));
 
 		dbllong dbl = RandomDouble(state);
 
+		free(combinedChar);
 		free(state);
 
 		if (dbl.d > 0.95) {
@@ -283,9 +284,7 @@ char* GetPool(Instance* ip, char* type, int typeStart, int typeEnd, int rarity, 
 			rarity = "1";
 		}
 
-		char* j = "Joker";
-
-		poolKey = CombineChars(3, j, rarity, keyAppend);
+		poolKey = CombineChars(3, type, rarity, keyAppend);
 	}
 	else {
 
@@ -349,19 +348,21 @@ uint64_t CreateCard(Instance* ip, char* type, int typeStart, int typeEnd, int ra
 
 	state = RandomStateFromSeed(NodeIDRandom(ip, returnKey, ip->hashedSeed));
 
-	uint64_t h = (uint64_t)typeStart;
-	uint64_t p = (uint64_t)typeEnd;
+	int64_t diff = rangeValues[1] - rangeValues[0];
+	int64_t lower = rangeValues[0];
 
-	printf("\nDiff: %" PRIu64, (p - h) + 1);
+	printf("\nrange: lower: %" PRIu64, rangeValues[0]);
+	printf(" higher: %" PRIu64, rangeValues[1]);
+	printf("\nDiff: %" PRIu64, diff);
 
-	int64_t returnInt = RandomInt(state, 1, (p - h) - 1);
+	int64_t returnInt = RandomInt(state, 1, (rangeValues[1] - rangeValues[0]) - 1);
 	
 	// make sure to free these in the loop to not lose pointers
 	free(rangeValues);
 	free(state);
 	free(returnKey);
 
-	return returnInt;
+	return returnInt + lower;
 }
 
 void GetCardsFromPack(Instance* ip, uint64_t* cards, int packIdx) {
@@ -387,6 +388,11 @@ void GetCardsFromPack(Instance* ip, uint64_t* cards, int packIdx) {
 			if (inCards) {
 
 				char* resampleIt = malloc(sizeof(char) * 2);
+
+				if (resampleIt == NULL) {
+					return NULL;
+				}
+
 				resampleIt[0] = (resample % 10) + '0';
 				resampleIt[1] = '\0';
 

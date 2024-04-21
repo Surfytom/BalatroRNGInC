@@ -63,6 +63,36 @@ char** BASE_DECK[52] = {
 	"S_A",
 };
 
+RateObject RATES[7] = {
+	{20, "Joker", JOKERSTART, JOKEREND},
+	{4, "Tarot",  TAROTSTART, TAROTEND},
+	{0, "Planet",  PLANETSTART, PLANETEND},
+	{4, "Base",  JOKERSTART, JOKEREND},
+	{0, "Spectral",  SPECTRALSTART, SPECTRALEND},
+	{1, "Edition", JOKERSTART, JOKEREND},
+	{28, "", 0, 0},
+};
+
+double BASERATES[7] = {
+	20,
+	4,
+	4,
+	0,
+	0,
+	1,
+	28,
+};
+
+char* RATETYPES[7] = {
+	"Joker",
+	"Tarot",
+	"Base",
+	"Planet",
+	"Spectral",
+	"Base",
+	"a",
+};
+
 char* CombineChars(int count, ...) {
 
 	va_list list;
@@ -137,12 +167,46 @@ Instance* InstanceCreate(char* seed, size_t hashMapSize) {
 
 	if (ip->deck == NULL) {
 		free(ip);
+		free(ip->seed);
+		free(ip->ante);
 		return NULL;
 	}
 
 	ip->deck->size = 52;
 
 	ip->deck->array = calloc(ip->deck->size, sizeof(Card*));
+
+	/*
+	ip->rates = malloc(sizeof(RatesObject) * 7);
+
+	if (ip->rates == NULL) {
+		free(ip);
+		free(ip->seed);
+		free(ip->ante);
+
+		for (int i = 0; i < ip->deck->size; i++) {
+			free(ip->deck->array[i]);
+		}
+
+		free(ip->deck->array);
+		free(ip->deck);
+
+		return NULL;
+	}
+
+	for (int i = 0; i < 7; i++) {
+		ip->rates[i].rate = BASERATES[i];
+		strcpy_s(ip->rates[i].type, strlen(RATETYPES[i]) + 1, RATETYPES[i]);
+	}
+	*/
+	/*
+	ip->rates->editionRate = 1;
+	ip->rates->jokerRate = 20;
+	ip->rates->tarotRate = 4;
+	ip->rates->planetRate = 4;
+	ip->rates->spectralRate = 0;
+	ip->rates->playingCardRate = 0;
+	*/
 
 	ip->NodeMap = HashMapCreate(hashMapSize);
 
@@ -160,6 +224,8 @@ void InstanceDelete(Instance* ip) {
 
 	free(ip->seed);
 	free(ip->ante);
+
+	//free(ip->rates);
 
 	HashMapDelete(ip->NodeMap);
 
@@ -257,9 +323,9 @@ char* GetPool(Instance* ip, char* type, int typeStart, int typeEnd, int rarity, 
 
 	if (typeStart == JOKERSTART) {
 
-		char* rarity = "rarity";
+		char* rarityChar = "rarity";
 
-		char* combinedChar = CombineChars(4, rarity, ip->ante, keyAppend, ip->seed);
+		char* combinedChar = CombineChars(4, rarityChar, ip->ante, keyAppend, ip->seed);
 
 		int64_t* state = RandomStateFromSeed(NodeIDRandom(ip, combinedChar, ip->hashedSeed));
 
@@ -271,23 +337,28 @@ char* GetPool(Instance* ip, char* type, int typeStart, int typeEnd, int rarity, 
 		if (dbl.d > 0.95) {
 			poolStart = JOKER3START;
 			poolEnd = JOKER3END;
-			rarity = "3";
+			rarityChar = "3";
 		}
 		else if (dbl.d > 0.7) {
 			poolStart = JOKER2START;
 			poolEnd = JOKER2END;
-			rarity = "2";
+			rarityChar = "2";
 		}
 		else {
 			poolStart = JOKER1START;
 			poolEnd = JOKER1END;
-			rarity = "1";
+			rarityChar = "1";
 		}
 
-		poolKey = CombineChars(3, type, rarity, keyAppend);
+		poolKey = CombineChars(3, type, rarityChar, keyAppend);
+	}
+	else if (typeStart == DECKSTART){
+
+		poolStart = typeStart;
+		poolEnd = typeEnd;
+		poolKey = CombineChars(2, "front", keyAppend, ip->ante);
 	}
 	else {
-
 		poolStart = typeStart;
 		poolEnd = typeEnd;
 		poolKey = CombineChars(2, type, keyAppend);
@@ -301,6 +372,48 @@ char* GetPool(Instance* ip, char* type, int typeStart, int typeEnd, int rarity, 
 	poolArray[1] = poolEnd;
 
 	return returnKey;
+}
+
+int PollEdition(Instance* ip, char* key, double mod, bool noNegative, bool force) {
+	if (mod == -1.0) {
+		mod = 1.0;
+	}
+
+	uint64_t* state = RandomStateFromSeed(NodeIDRandom(ip, key));
+
+	dbllong dbl = RandomDouble(state);
+
+	free(state);
+
+	if (force) {
+		if (dbl.d > 1 - 0.003 * 25 && !noNegative) {
+			return negative;
+		}
+		if (dbl.d > 1 - 0.006 * 25) {
+			return polychrome;
+		}
+		if (dbl.d > 1 - 0.02 * 25) {
+			return holo;
+		}
+		if (dbl.d > 1 - 0.04 * 25) {
+			return foil;
+		}
+	}
+
+	if (dbl.d > 1 - 0.003 * mod && !noNegative) {
+		return negative;
+	}
+	if (dbl.d > 1 - 0.006 * RATES[5].rate * mod) {
+		return polychrome;
+	}
+	if (dbl.d > 1 - 0.02 * RATES[5].rate * mod) {
+		return holo;
+	}
+	if (dbl.d > 1 - 0.04 * RATES[5].rate * mod) {
+		return foil;
+	}
+
+	return -1;
 }
 
 uint64_t CreateCard(Instance* ip, char* type, int typeStart, int typeEnd, int rarity, char* forcedKey, char* keyAppend) {
@@ -365,6 +478,106 @@ uint64_t CreateCard(Instance* ip, char* type, int typeStart, int typeEnd, int ra
 	return returnInt + lower;
 }
 
+int GetJokerEdition(Instance* ip, char* keyAppend) {
+
+	char* combinedChar = CombineChars(4, "edi", keyAppend, ip->ante, ip->seed);
+
+	int returnInt = PollEdition(ip, combinedChar, -1.0, false, false);
+
+	free(combinedChar);
+
+	printf("\nRETURN INT FOR EDITION: %d", returnInt);
+
+	return returnInt;
+}
+
+int GetStandardCardEdition(Instance* ip) {
+
+	char* combinedChar = CombineChars(3, "standard_edition", ip->ante, ip->seed);
+
+	int returnInt = PollEdition(ip, combinedChar, 2.0, true, false);
+
+	free(combinedChar);
+
+	return returnInt;
+}
+
+int GetStandardCardSeal(Instance* ip) {
+
+	char* combinedChar = CombineChars(3, "stdseal", ip->ante, ip->seed);
+
+	int64_t* state = RandomStateFromSeed(NodeIDRandom(ip, combinedChar));
+
+	dbllong dbl = RandomDouble(state);
+
+	int returnInt = -1;
+
+	if (dbl.d > (1.0 - 0.02 * 10.0)) {
+		// Seal garunteed now choose which type of seal
+		free(state);
+		free(combinedChar);
+
+		combinedChar = CombineChars(3, "stdsealtype", ip->ante, ip->seed);	
+
+		state = RandomStateFromSeed(NodeIDRandom(ip, combinedChar));
+
+		dbl = RandomDouble(state);
+
+		if (dbl.d > 0.75) {
+			returnInt = s_red;
+		}
+		else if (dbl.d > 0.5) {
+			returnInt = s_blue;
+		}
+		else if (dbl.d > 0.25) {
+			returnInt = s_gold;
+		}
+		else {
+			returnInt = s_purple;
+		}
+	}
+
+	free(state);
+	free(combinedChar);
+
+	return returnInt;
+}
+
+uint64_t GetStandardCardBonus(Instance* ip) {
+
+	
+	char* combinedChar = CombineChars(3, "stdset", ip->ante, ip->seed);
+	
+	int64_t* state = RandomStateFromSeed(NodeIDRandom(ip, combinedChar));
+
+	dbllong dbl = RandomDouble(state);
+	
+	uint64_t returnInt = 0;
+
+	if (dbl.d > 0.6) {
+
+		free(combinedChar);
+		free(state);
+
+		combinedChar = CombineChars(4, "Enhanced", "sta", ip->ante, ip->seed);
+
+		state = RandomStateFromSeed(NodeIDRandom(ip, combinedChar));
+
+		int64_t diff = (BONUSEND - BONUSSTART) - 1;
+		int64_t lower = BONUSSTART;
+
+		printf("\nDiff in bonus: %" PRIu64, diff);
+
+		returnInt = RandomInt(state, 1, diff);
+		returnInt += lower;
+	}
+
+	free(combinedChar);
+	free(state);
+
+	return returnInt;
+}
+
 void GetCardsFromPack(Instance* ip, uint64_t* cards, int packIdx) {
 
 	char* c = NULL;
@@ -385,7 +598,7 @@ void GetCardsFromPack(Instance* ip, uint64_t* cards, int packIdx) {
 				}
 			}
 
-			if (inCards) {
+			if (inCards && PACKS[packIdx].start != DECKSTART) {
 
 				char* resampleIt = malloc(sizeof(char) * 2);
 
@@ -415,11 +628,105 @@ void GetCardsFromPack(Instance* ip, uint64_t* cards, int packIdx) {
 
 		c = GetPack(packIdx);
 
-		printf("\nPack: %s card: %" PRIu64, c, PACKS[packIdx].start + card);
+		printf("\nPack: %s card: %" PRIu64, c, card);
 		printf(" start: %d end : %d", PACKS[packIdx].start, PACKS[packIdx].end);
 
 		free(c);
 	}
+}
+
+uint64_t GetCardForShop(Instance* ip) {
+
+	char* combinedChar = CombineChars(3, "cdt", ip->ante, ip->seed);
+
+	uint64_t* state = RandomStateFromSeed(NodeIDRandom(ip, combinedChar));
+
+	dbllong dbl = RandomDouble(state);
+
+	free(combinedChar);
+	free(state);
+
+	double polledRate = dbl.d * RATES[6].rate;
+	double checkRate = 0.0;
+	/*
+	// Roll for enhanced vs base card
+	// Only if the playing card voucher is gotten
+	uint64_t* state = RandomStateFromSeed(NodeIDRandom(ip, "illusion"));
+
+	dbllong dbl = RandomDouble(state);
+
+	if (dbl.d > 0.6) {
+		// Get enhanced card
+	}
+	else {
+		// Get base card
+	}
+	*/
+	double currentRate = 0.0;
+	uint64_t card = NULL;
+
+	for (int i = 0; i < 5; i++) {
+		printf("\ni: %d rate: %0.10f type: %s polled rate: %0.10f", i, RATES[i].rate, RATES[i].type, polledRate);
+		currentRate = RATES[i].rate;
+
+		
+		if (polledRate > checkRate && polledRate <= (checkRate + currentRate)) {
+
+			card = CreateCard(ip, RATES[i].type, RATES[i].typeStart, RATES[i].typeEnd, 0, NULL, "sho");
+			return card;
+		}
+
+		checkRate += RATES[i].rate;
+	}
+
+	return 0;
+}
+
+void GetCardsForShop(Instance* ip, int64_t* cards, int shopSize) {
+
+	for (int i = 0; i < shopSize; i++) {
+		cards[i] = GetCardForShop(ip);
+	}
+}
+
+int GetVoucher(Instance* ip, bool fromTag) {
+
+
+
+	CreateCard(ip, fromTag ? "Voucher_fromtag" : "Voucher", VOUCHERSTART, VOUCHEREND, );
+}
+
+char* GetPackTypeForRates(int n) {
+
+	int sizeOfMaxChar = 9;
+
+	char* returnCharPtr = malloc(sizeOfMaxChar * sizeof(char));
+
+	if (returnCharPtr == NULL) {
+		return NULL;
+	}
+
+	switch (n) {
+	case 1:
+		strcpy_s(returnCharPtr, sizeOfMaxChar * sizeof(char), "Joker");
+		break;
+	case 2:
+		strcpy_s(returnCharPtr, sizeOfMaxChar * sizeof(char), "Tarot");
+		break;
+	case 3:
+		strcpy_s(returnCharPtr, sizeOfMaxChar * sizeof(char), "Planet");
+		break;
+	case 4:
+		strcpy_s(returnCharPtr, sizeOfMaxChar * sizeof(char), "Base");
+		break;
+	case 5:
+		strcpy_s(returnCharPtr, sizeOfMaxChar * sizeof(char), "Spectral");
+		break;
+	default:
+		strcpy_s(returnCharPtr, sizeOfMaxChar * sizeof(char), "NoPack");
+	}
+
+	return returnCharPtr;
 }
 
 char* GetSuit(int n) {

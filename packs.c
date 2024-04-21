@@ -2,7 +2,7 @@
 
 char NUMOFPACKS = 16;
 
-weighteditem PACKS[16] = {
+weighteditem PACKS[17] = {
    {RETRY, 22.42, 0, 0, 0, "", ""}, //total
    {Arcana_Pack, 4, 3, TAROTSTART, TAROTEND, "Tarot", "ar1"},
    {Jumbo_Arcana_Pack, 2, 5, TAROTSTART, TAROTEND, "Tarot", "ar1"},
@@ -10,15 +10,16 @@ weighteditem PACKS[16] = {
    {Celestial_Pack, 4, 3, PLANETSTART, PLANETEND, "Planet", "pl1"},
    {Jumbo_Celestial_Pack, 2, 5, PLANETSTART, PLANETEND, "Planet", "pl1"},
    {Mega_Celestial_Pack, 0.5, 5, PLANETSTART, PLANETEND, "Planet","pl1"},
-   {Standard_Pack, 4, 3, JOKERSTART, JOKEREND, "Base", "stdset"},
-   {Jumbo_Standard_Pack, 2, 5, JOKERSTART, JOKEREND, "Base", "stdset"},
-   {Mega_Standard_Pack, 0.5, 5, JOKERSTART, JOKEREND, "Base", "stdset"},
+   {Standard_Pack, 4, 3, DECKSTART, DECKEND, "stdset", "sta"},
+   {Jumbo_Standard_Pack, 2, 5, DECKSTART, DECKEND, "stdset", "sta"},
+   {Mega_Standard_Pack, 0.5, 5, DECKSTART, DECKEND, "stdset", "sta"},
    {Buffoon_Pack, 1.2, 2, JOKERSTART, JOKEREND, "Joker", "buf"},
    {Jumbo_Buffoon_Pack, 0.6, 4, JOKERSTART, JOKEREND, "Joker", "buf"},
    {Mega_Buffoon_Pack, 0.15, 4, JOKERSTART, JOKEREND, "Joker", "buf"},
    {Spectral_Pack, 0.6, 2, SPECTRALSTART, SPECTRALEND, "Spectral", "spe"},
    {Jumbo_Spectral_Pack, 0.3, 4, SPECTRALSTART, SPECTRALEND, "Spectral", "spe"},
-   {Mega_Spectral_Pack, 0.07, 4, SPECTRALSTART, SPECTRALEND, "Spectral", "spe"}
+   {Mega_Spectral_Pack, 0.07, 4, SPECTRALSTART, SPECTRALEND, "Spectral", "spe"},
+   {Vouchers, 0.0, 4, VOUCHERSTART, VOUCHEREND, "Spectral", "spe"},
 };
 
 char* GetPackKey(int n) {

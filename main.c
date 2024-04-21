@@ -20,22 +20,80 @@ if (ante[0] - '0' == 1) {
 */
 
 // TODO: check if spectral packs work when getting cards from them
-// Same but with joker packs - potentially done
 // Same with planet packs
-// Same with standard packs
-// Create function to generate shop cards
 // Implement vouchers
+//	Vouchers pool : check if voucher needs another vouchar to be picked
 // Seed searcher
+// Boss blind ability randomisation
+
+// Done:
+// joker packs edition generation - done
+// standard packs edition seal bonus and card generation - done
+// Create function to generate shop cards - Done
+// Implement enhanced and base card generation - done
+// Implement joker edition generation - might be done
 
 // Ideas
 // - Cards are a struct with certain attributes such as the soul
 // - You can then call a function to use these cards to see what they will reveal
 int main() {
-
-	char* testKey = "WCNGZX2R";
+	
+	char* testKey = "C";
 
 	Instance* ip = InstanceCreate(testKey, HASHMAPSIZE);
+
+	char* c = NULL;
+	int randomPackIndex = 0;
+
+	uint64_t cards[5] = {0, 0, 0, 0, 0};
+
+	int edition = 0;
+	int seal = 0;
+	uint64_t bonus = 0;
+
+	for (int i = 0; i < 2; i++) {
+		randomPackIndex = GetRandomPack(ip);
+
+		GetCardsFromPack(ip, cards, randomPackIndex);
+
+		printf("\nPACK %s", PACKS[randomPackIndex].type);
+		for (int j = 0; j < PACKS[randomPackIndex].size; j++) {
+			if (cards[i] > DECKSTART && cards[i] < DECKEND) {
+				edition = GetStandardCardEdition(ip);
+				seal = GetStandardCardSeal(ip);
+				bonus = GetStandardCardBonus(ip);
+				printf("\nCard %d: ACTUAL CARD: %" PRIu64, j, cards[j]);
+				printf("\nEdition: %d", edition);
+				printf("\nSeal: %d", seal);
+				printf("\nBonus: %" PRIu64, bonus);
+			}
+			else {
+				printf("\nCard %d: %" PRIu64, j, cards[j]);
+			}
+		}
+		printf("\n");
+	}
+
+	/*
+	uint64_t* cards[5] = { 0, 0, 0, 0, 0 };
+
+	GetCardsForShop(ip, cards, 2);
+	int edition = -1;
+	for (int i = 0; i < 4; i++) {
+		if (cards[i] > JOKER1START && cards[i] < JOKER4END) {
+			edition = GetJokerEdition(ip, "buf");
+		}
+		if (cards[i] > DECKSTART && cards[i] < DECKEND) {
+			printf("\nCard %d: edition: %d ACTUAL CARD: %s" , i, edition, BASE_DECK[(int)cards[i]]);
+		}
+		else {
+			printf("\nCard %d: edition: %d: %" PRIu64, i, edition, cards[i]);
+		}
+	}
+	*/
+	InstanceDelete(ip);
 	
+	/*
 	char* c = NULL;
 	int randomPackIndex = 0;
 
@@ -55,6 +113,7 @@ int main() {
 	}
 
 	free(cards);
+	*/
 
 	/*
 	for (int j = 0; j < 2; j++) {
@@ -108,8 +167,6 @@ int main() {
 
 		printf("\n");
 	}*/
-	
-	InstanceDelete(ip);
 	
 	/*
 	size_t size = 2;

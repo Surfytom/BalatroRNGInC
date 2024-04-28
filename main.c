@@ -21,8 +21,6 @@ if (ante[0] - '0' == 1) {
 
 // TODO: check if spectral packs work when getting cards from them
 // Same with planet packs
-// Implement vouchers
-//	Vouchers pool : check if voucher needs another vouchar to be picked
 // Seed searcher
 // Boss blind ability randomisation
 
@@ -32,19 +30,32 @@ if (ante[0] - '0' == 1) {
 // Create function to generate shop cards - Done
 // Implement enhanced and base card generation - done
 // Implement joker edition generation - might be done
+// Implement vouchers
+//	Vouchers pool : check if voucher needs another vouchar to be picked
 
 // Ideas
 // - Cards are a struct with certain attributes such as the soul
 // - You can then call a function to use these cards to see what they will reveal
 int main() {
 	
-	char* testKey = "C";
+	char* testKey = "ABC";
 
 	Instance* ip = InstanceCreate(testKey, HASHMAPSIZE);
 
-	char* c = NULL;
-	int randomPackIndex = 0;
+	int voucher = 0;
 
+	uint64_t cards[1] = { 0 };
+
+	for (int i = 0; i < CONSUMABLEEND; i++) {
+		printf("\n[%d] Bool Value: %s", i, ip->locked[i] ? "True" : "False");
+	}
+
+	voucher = GetVoucher(ip, false);
+
+	printf("\nVoucher index: %d", voucher);
+
+
+	/*
 	uint64_t cards[5] = {0, 0, 0, 0, 0};
 
 	int edition = 0;
@@ -73,7 +84,7 @@ int main() {
 		}
 		printf("\n");
 	}
-
+	*/
 	/*
 	uint64_t* cards[5] = { 0, 0, 0, 0, 0 };
 

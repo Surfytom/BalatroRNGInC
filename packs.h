@@ -26,6 +26,7 @@ typedef enum pack {
     Jumbo_Spectral_Pack,
     Mega_Spectral_Pack,
     Vouchers,
+    VouchersFromTag,
 } pack;
 
 typedef struct WeightedItem {
@@ -43,7 +44,14 @@ typedef struct Joker {
     double weight;
 } Joker;
 
-extern weighteditem PACKS[17];
+extern weighteditem PACKS[18];
+
+typedef struct Voucher {
+    int enumNum;
+    int required;
+} Voucher;
+
+extern Voucher VOUCHERS[32];
 
 //char* GetPackKey(int n);
 char* GetPackType(int n);

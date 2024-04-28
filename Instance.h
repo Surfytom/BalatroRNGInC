@@ -62,6 +62,7 @@ typedef struct Instance {
 	char* seed;
 	double hashedSeed;
 	char* ante;
+	bool* locked;
 	//double* rates;
 	//RateObject* rates;
 } Instance;
@@ -88,6 +89,7 @@ int GetJokerEdition(Instance* ip, char* keyAppend);
 int GetStandardCardEdition(Instance* ip);
 int GetStandardCardSeal(Instance* ip);
 uint64_t GetStandardCardBonus(Instance* ip);
+int GetVoucher(Instance* ip, bool fromTag);
 
 char* GetPackTypeForRates(int n);
 char* GetSeal(int n);

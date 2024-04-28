@@ -208,6 +208,33 @@ Instance* InstanceCreate(char* seed, size_t hashMapSize) {
 	ip->rates->playingCardRate = 0;
 	*/
 
+	ip->locked = calloc(CONSUMABLEEND, sizeof(bool));
+
+	if (ip->locked == NULL) {
+		free(ip);
+		free(ip->seed);
+		free(ip->ante);
+
+		for (int i = 0; i < ip->deck->size; i++) {
+			free(ip->deck->array[i]);
+		}
+
+		free(ip->deck->array);
+		free(ip->deck);
+
+		return NULL;
+	}
+
+	// Initialize things that should be locked from the beggining
+
+	for (int i = 1; i < (VOUCHEREND - VOUCHERSTART); i++) {
+		printf("\nI initial: %d", i);
+		printf("\nI actual: %d", VOUCHERSTART + i);
+		if (VOUCHERS[i].required != -1) {
+			ip->locked[VOUCHERSTART + i] = true;
+		}
+	}
+
 	ip->NodeMap = HashMapCreate(hashMapSize);
 
 	return ip;
@@ -224,6 +251,8 @@ void InstanceDelete(Instance* ip) {
 
 	free(ip->seed);
 	free(ip->ante);
+
+	free(ip->locked);
 
 	//free(ip->rates);
 
@@ -544,7 +573,6 @@ int GetStandardCardSeal(Instance* ip) {
 }
 
 uint64_t GetStandardCardBonus(Instance* ip) {
-
 	
 	char* combinedChar = CombineChars(3, "stdset", ip->ante, ip->seed);
 	
@@ -583,6 +611,7 @@ void GetCardsFromPack(Instance* ip, uint64_t* cards, int packIdx) {
 	char* c = NULL;
 
 	uint64_t card = 0;
+	int cardInt = 0;
 
 	for (int i = 0; i < PACKS[packIdx].size; i++) {
 
@@ -592,9 +621,18 @@ void GetCardsFromPack(Instance* ip, uint64_t* cards, int packIdx) {
 		bool foundUniqueCard = false;
 		while (!foundUniqueCard) {
 			bool inCards = false;
-			for (int t = 0; t < i; t++) {
+			for (int t = 0; t < i+1; t++) {
 				if (card == cards[t]) {
 					inCards = true;
+				}
+				if (PACKS[packIdx].start == VOUCHERSTART) {
+					cardInt = card;
+					printf("\nindex: %d", VOUCHERS[VOUCHEREND - cardInt].required);
+					printf("\nbool val: %d", ip->locked[VOUCHERS[VOUCHEREND - cardInt].required]);
+					printf("\ncard: %d", cardInt);
+					if (ip->locked[VOUCHERS[VOUCHEREND - cardInt].required] == true) {
+						inCards = true;
+					}
 				}
 			}
 
@@ -606,11 +644,11 @@ void GetCardsFromPack(Instance* ip, uint64_t* cards, int packIdx) {
 					return NULL;
 				}
 
-				resampleIt[0] = (resample % 10) + '0';
+				resampleIt[0] = (resample % 10) + '1';
 				resampleIt[1] = '\0';
 
 				char* re = "_resample";
-				char* resampleChar = CombineChars(4, PACKS[packIdx].key, re, resampleIt, ip->seed);
+				char* resampleChar = CombineChars(2, re, resampleIt);
 
 				card = CreateCard(ip, PACKS[packIdx].type, PACKS[packIdx].start, PACKS[packIdx].end, 0, NULL, resampleChar);
 
@@ -691,9 +729,15 @@ void GetCardsForShop(Instance* ip, int64_t* cards, int shopSize) {
 
 int GetVoucher(Instance* ip, bool fromTag) {
 
+	uint64_t cards[1] = {0};
+	int returnCard = 0;
 
+	GetCardsFromPack(ip, cards, fromTag ? VouchersFromTag : Vouchers);
+	//CreateCard(ip, fromTag ? "Voucher_fromtag" : "Voucher", VOUCHERSTART, VOUCHEREND, 0, NULL, "");
 
-	CreateCard(ip, fromTag ? "Voucher_fromtag" : "Voucher", VOUCHERSTART, VOUCHEREND, );
+	returnCard = cards[0];
+
+	return returnCard;
 }
 
 char* GetPackTypeForRates(int n) {

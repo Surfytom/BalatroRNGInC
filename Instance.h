@@ -82,13 +82,13 @@ int GetRandomPack(Instance* ip);
 char* GetPool(Instance* ip, char* type, int typeStart, int typeEnd, int rarity, char* keyAppend, uint64_t* poolArray);
 uint64_t CreateCard(Instance* ip, char* type, int typeStart, int typeEnd, int rarity, char* forcedKey, char* keyAppend);
 void GetCardsFromPack(Instance* ip, uint64_t* cards, int packIdx);
-uint64_t GetCardForShop(Instance* ip);
+int GetCardForShop(Instance* ip);
 void GetCardsForShop(Instance* ip, int64_t* cards, int shopSize);
 
 int GetJokerEdition(Instance* ip, char* keyAppend);
 int GetStandardCardEdition(Instance* ip);
 int GetStandardCardSeal(Instance* ip);
-uint64_t GetStandardCardBonus(Instance* ip);
+int GetStandardCardBonus(Instance* ip);
 int GetVoucher(Instance* ip, bool fromTag);
 
 char* GetPackTypeForRates(int n);

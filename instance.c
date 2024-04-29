@@ -228,8 +228,8 @@ Instance* InstanceCreate(char* seed, size_t hashMapSize) {
 	// Initialize things that should be locked from the beggining
 
 	for (int i = 1; i < (VOUCHEREND - VOUCHERSTART); i++) {
-		printf("\nI initial: %d", i);
-		printf("\nI actual: %d", VOUCHERSTART + i);
+		//printf("\nI initial: %d", i);
+		//printf("\nI actual: %d", VOUCHERSTART + i);
 		if (VOUCHERS[i].required != -1) {
 			ip->locked[VOUCHERSTART + i] = true;
 		}
@@ -385,7 +385,7 @@ char* GetPool(Instance* ip, char* type, int typeStart, int typeEnd, int rarity, 
 
 		poolStart = typeStart;
 		poolEnd = typeEnd;
-		poolKey = CombineChars(2, "front", keyAppend, ip->ante);
+		poolKey = CombineChars(2, "front", keyAppend);
 	}
 	else {
 		poolStart = typeStart;
@@ -442,7 +442,7 @@ int PollEdition(Instance* ip, char* key, double mod, bool noNegative, bool force
 		return foil;
 	}
 
-	return -1;
+	return 0;
 }
 
 uint64_t CreateCard(Instance* ip, char* type, int typeStart, int typeEnd, int rarity, char* forcedKey, char* keyAppend) {
@@ -539,7 +539,7 @@ int GetStandardCardSeal(Instance* ip) {
 
 	dbllong dbl = RandomDouble(state);
 
-	int returnInt = -1;
+	int returnInt = 0;
 
 	if (dbl.d > (1.0 - 0.02 * 10.0)) {
 		// Seal garunteed now choose which type of seal
@@ -572,7 +572,7 @@ int GetStandardCardSeal(Instance* ip) {
 	return returnInt;
 }
 
-uint64_t GetStandardCardBonus(Instance* ip) {
+int GetStandardCardBonus(Instance* ip) {
 	
 	char* combinedChar = CombineChars(3, "stdset", ip->ante, ip->seed);
 	
@@ -580,7 +580,8 @@ uint64_t GetStandardCardBonus(Instance* ip) {
 
 	dbllong dbl = RandomDouble(state);
 	
-	uint64_t returnInt = 0;
+	uint64_t returnUInt = 0;
+	int returnInt = 0;
 
 	if (dbl.d > 0.6) {
 
@@ -596,13 +597,14 @@ uint64_t GetStandardCardBonus(Instance* ip) {
 
 		printf("\nDiff in bonus: %" PRIu64, diff);
 
-		returnInt = RandomInt(state, 1, diff);
-		returnInt += lower;
+		returnUInt = RandomInt(state, 1, diff);
+		returnUInt += lower;
 	}
 
 	free(combinedChar);
 	free(state);
 
+	returnInt = returnUInt;
 	return returnInt;
 }
 
@@ -617,7 +619,7 @@ void GetCardsFromPack(Instance* ip, uint64_t* cards, int packIdx) {
 
 		card = CreateCard(ip, PACKS[packIdx].type, PACKS[packIdx].start, PACKS[packIdx].end, 0, NULL, PACKS[packIdx].key);
 
-		int resample = 1;
+		int resample = 0;
 		bool foundUniqueCard = false;
 		while (!foundUniqueCard) {
 			bool inCards = false;
@@ -673,7 +675,7 @@ void GetCardsFromPack(Instance* ip, uint64_t* cards, int packIdx) {
 	}
 }
 
-uint64_t GetCardForShop(Instance* ip) {
+int GetCardForShop(Instance* ip) {
 
 	char* combinedChar = CombineChars(3, "cdt", ip->ante, ip->seed);
 
@@ -702,6 +704,7 @@ uint64_t GetCardForShop(Instance* ip) {
 	*/
 	double currentRate = 0.0;
 	uint64_t card = NULL;
+	int cardInt = NULL;
 
 	for (int i = 0; i < 5; i++) {
 		printf("\ni: %d rate: %0.10f type: %s polled rate: %0.10f", i, RATES[i].rate, RATES[i].type, polledRate);
@@ -711,7 +714,8 @@ uint64_t GetCardForShop(Instance* ip) {
 		if (polledRate > checkRate && polledRate <= (checkRate + currentRate)) {
 
 			card = CreateCard(ip, RATES[i].type, RATES[i].typeStart, RATES[i].typeEnd, 0, NULL, "sho");
-			return card;
+			cardInt = card;
+			return cardInt;
 		}
 
 		checkRate += RATES[i].rate;
@@ -736,6 +740,8 @@ int GetVoucher(Instance* ip, bool fromTag) {
 	//CreateCard(ip, fromTag ? "Voucher_fromtag" : "Voucher", VOUCHERSTART, VOUCHEREND, 0, NULL, "");
 
 	returnCard = cards[0];
+
+	ip->locked[returnCard] = true;
 
 	return returnCard;
 }

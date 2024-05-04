@@ -449,3 +449,5 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+/RNGFromScratch.vcxproj
+/RNGFromScratch.vcxproj.filters

@@ -312,6 +312,14 @@ uint64_t RandomChoice(Instance* ip, char* id, uint64_t min, uint64_t max) {
 	return RandomInt(state, min, max);
 }
 
+void SetAnte(Instance* ip, int ante) {
+
+	char buffer[3];
+	snprintf(buffer, sizeof buffer, "%d", ante);
+
+	strcpy_s(ip->ante, 2, buffer);
+}
+
 int GetRandomPack(Instance* ip) {
 	char* packSeed = "shop_pack";
 
@@ -386,6 +394,18 @@ char* GetPool(Instance* ip, char* type, int typeStart, int typeEnd, int rarity, 
 		poolStart = typeStart;
 		poolEnd = typeEnd;
 		poolKey = CombineChars(2, "front", keyAppend);
+	}
+	else if (typeStart == VOUCHERSTART) {
+
+		poolStart = typeStart;
+		poolEnd = typeEnd;
+
+		poolArray[0] = poolStart;
+		poolArray[1] = poolEnd;
+
+		poolKey = CombineChars(4, type, ip->ante, keyAppend, ip->seed);
+
+		return poolKey;
 	}
 	else {
 		poolStart = typeStart;
@@ -619,7 +639,7 @@ void GetCardsFromPack(Instance* ip, uint64_t* cards, int packIdx) {
 
 		card = CreateCard(ip, PACKS[packIdx].type, PACKS[packIdx].start, PACKS[packIdx].end, 0, NULL, PACKS[packIdx].key);
 
-		int resample = 0;
+		int resample = 1;
 		bool foundUniqueCard = false;
 		while (!foundUniqueCard) {
 			bool inCards = false;
@@ -629,10 +649,10 @@ void GetCardsFromPack(Instance* ip, uint64_t* cards, int packIdx) {
 				}
 				if (PACKS[packIdx].start == VOUCHERSTART) {
 					cardInt = card;
-					printf("\nindex: %d", VOUCHERS[VOUCHEREND - cardInt].required);
-					printf("\nbool val: %d", ip->locked[VOUCHERS[VOUCHEREND - cardInt].required]);
+					printf("\nindex: %d", VOUCHERS[cardInt - (VOUCHERSTART + 1)].required);
+					printf("\nbool val: %d", ip->locked[VOUCHERS[cardInt - (VOUCHERSTART + 1)].required]);
 					printf("\ncard: %d", cardInt);
-					if (ip->locked[VOUCHERS[VOUCHEREND - cardInt].required] == true) {
+					if (ip->locked[VOUCHERS[cardInt - (VOUCHERSTART + 1)].required] == true) {
 						inCards = true;
 					}
 				}
@@ -686,7 +706,7 @@ int GetCardForShop(Instance* ip) {
 	free(combinedChar);
 	free(state);
 
-	double polledRate = dbl.d * RATES[6].rate;
+	double polledRate = dbl.d * (RATES[6].rate + RATES[4].rate);
 	double checkRate = 0.0;
 	/*
 	// Roll for enhanced vs base card
@@ -724,7 +744,7 @@ int GetCardForShop(Instance* ip) {
 	return 0;
 }
 
-void GetCardsForShop(Instance* ip, int64_t* cards, int shopSize) {
+void GetCardsForShop(Instance* ip, int* cards, int shopSize) {
 
 	for (int i = 0; i < shopSize; i++) {
 		cards[i] = GetCardForShop(ip);
@@ -742,6 +762,10 @@ int GetVoucher(Instance* ip, bool fromTag) {
 	returnCard = cards[0];
 
 	ip->locked[returnCard] = true;
+	printf("\nVoucher index: %d", returnCard - (VOUCHERSTART + 1));
+	if (VOUCHERS[returnCard - (VOUCHERSTART + 1)].required != -1) {
+		ip->locked[VOUCHERS[returnCard - (VOUCHERSTART + 1)].required] = false;
+	}
 
 	return returnCard;
 }

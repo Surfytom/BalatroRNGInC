@@ -46,7 +46,7 @@ extern char* RATETYPES[7];
 extern RateObject RATES[7];
 extern char** BASE_DECK[52];
 
-typedef enum RATESINDEX {
+enum RATESINDEX {
 	JOKERRATE,
 	TAROTRATE,
 	PLANETRATE,
@@ -72,6 +72,8 @@ char* CombineChars(int count, ...);
 Instance* InstanceCreate(char* seed, size_t hashMapSize);
 void InstanceDelete(Instance* ip);
 
+void SetAnte(Instance* ip, int ante);
+
 entry* NodeIDGet(Instance* ip, char* id);
 bool NodeIDInsert(Instance* ip, char* id, double value);
 bool NodeIDRemove(Instance* ip, char* id);
@@ -81,6 +83,7 @@ uint64_t RandomChoice(Instance* ip, char* id, uint64_t min, uint64_t max);
 int GetRandomPack(Instance* ip);
 char* GetPool(Instance* ip, char* type, int typeStart, int typeEnd, int rarity, char* keyAppend, uint64_t* poolArray);
 uint64_t CreateCard(Instance* ip, char* type, int typeStart, int typeEnd, int rarity, char* forcedKey, char* keyAppend);
+
 void GetCardsFromPack(Instance* ip, uint64_t* cards, int packIdx);
 int GetCardForShop(Instance* ip);
 void GetCardsForShop(Instance* ip, int64_t* cards, int shopSize);

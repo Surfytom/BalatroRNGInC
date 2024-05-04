@@ -19,6 +19,7 @@ typedef struct LuaRandom {
 	dbllong out;
 } lrandom;
 
+void PrintBits(uint64_t number);
 void RandomizeStateStep(uint64_t* rs, uint64_t* z, dbllong* r, int i, int k, int q, int s);
 dbllong RandomizeState(uint64_t* rs);
 uint64_t* RandomStateFromSeed(double seed);

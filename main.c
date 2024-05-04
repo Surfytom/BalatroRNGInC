@@ -9,6 +9,8 @@
 #include <crtdbg.h>
 
 #include "instance.h"
+#include "searcher.h"
+#include "dynamictest.h"
 
 const size_t HASHMAPSIZE = 100;
 
@@ -194,7 +196,7 @@ if (ante[0] - '0' == 1) {
 // TODO: 
 // check if spectral packs work when getting cards from them
 // Same with planet packs
-// Seed searcher
+// Seed searcher - generate all seeds done
 // Boss blind ability randomisation
 // Write test cases to quickly test if all the functions are working as expected
 
@@ -210,9 +212,73 @@ if (ante[0] - '0' == 1) {
 // Ideas
 // - Cards are a struct with certain attributes such as the soul
 // - You can then call a function to use these cards to see what they will reveal
+
+
 int main() {
 	
-	RunTests("testseedA.txt");
+	//RunTests("testseedA.txt");
+
+
+
+	// Dynamic function calling
+	/*
+	Instance* ip = InstanceCreate("A", 100);
+
+	FuncWrapper func = CallFunction("filter");
+
+	(*func)(ip);
+
+	InstanceDelete(ip);
+	*/
+	/*
+	char* testChar = malloc(sizeof(char) * 3);
+	strcpy_s(testChar, 3, "AB");
+	
+	bool check = StartSearch(testChar, 2);
+
+	if (!check) {
+		printf("\nSEARCH FAILED!!!");
+	}
+	*/
+	// Seed searching tests
+	
+	/*
+	char* testChar = malloc(sizeof(char) * 2);
+	strcpy_s(testChar, 2, "A");
+
+	printf("\nChar: %8s", testChar);
+	uint64_t i = 0;
+	while (NextSeed(testChar)){
+		if (i % 10000000 == 0) {
+			printf("\nChar %" PRIu64 ": %8s", i, testChar);
+		}
+		i++;
+	}
+
+	free(testChar);
+	*/
+	/*
+	Instance* ip = InstanceCreate("IDJB1MS8", HASHMAPSIZE);
+	RATES[4].rate = 2.0;
+	strcpy_s(ip->ante, 2, "3");
+
+	int cards[5] = { 0, 0, 0, 0, 0 };
+
+	GetCardsForShop(ip, cards, 3);
+
+	for (int i = 0; i < 5; i++) {
+		printf("\nCard %d: %d", i, cards[i]);
+	}
+
+	InstanceDelete(ip);
+	*/
+	/*
+	Instance* ip = InstanceCreate("A", HASHMAPSIZE);
+	strcpy_s(ip->ante, 2, "3");
+	int vouch = GetVoucher(ip, false);
+	printf("\nvouch: %d: ", vouch);
+	InstanceDelete(ip);
+	*/
 
 	/*
 	char* testKey = "ABC";

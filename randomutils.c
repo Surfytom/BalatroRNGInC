@@ -1,6 +1,22 @@
 #include "randomutils.h"
 #include "packs.h"
 
+void PrintBits(uint64_t number) {
+	unsigned int size = sizeof(uint64_t);
+	uint64_t maxPow = (uint64_t)1 << ((size * 8) - 1);
+
+	for (int i = size * 8; i >= 1 ; i--) {
+		printf("%2d ", i);
+	}
+	printf("\n");
+
+	for (int i = 0; i < size * 8; ++i) {
+		// print last bit and shift left.
+		printf("%2u ", number & maxPow ? 1 : 0);
+		number = number << 1;
+	}
+}
+
 void RandomizeStateStep(uint64_t* rs, uint64_t* z, dbllong* r, int i, int k, int q, int s) {
 	*z = rs[i];
 
@@ -14,6 +30,25 @@ void RandomizeStateStep(uint64_t* rs, uint64_t* z, dbllong* r, int i, int k, int
 
 	r->ul ^= x7;
 	rs[i] = x7;
+
+	/*
+	printf("\n\nz:\n");
+	PrintBits(*z);
+	printf("\n\nx1:\n");
+	PrintBits(x1);
+	printf("\n\nx2:\n");
+	PrintBits(x2);
+	printf("\n\nx3:\n");
+	PrintBits(x3);
+	printf("\n\nx4:\n");
+	PrintBits(x4);
+	printf("\n\nx5:\n");
+	PrintBits(x5);
+	printf("\n\nx6:\n");
+	PrintBits(x6);
+	printf("\n\nx7:\n");
+	PrintBits(x7);
+	*/
 
 	*z = x7;
 

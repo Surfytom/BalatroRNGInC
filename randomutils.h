@@ -29,6 +29,7 @@ uint64_t RandomInt(uint64_t* rs, uint64_t min, uint64_t max);
 double fract(double f);
 double PseudoHashChar(char* c);
 double RoundDigits(double f, int d);
+double RoundNFloorDigits(double f, int d);
 //double NodeID(char* id, char* seed, double* rngstate, double hashedSeed);
 void BubbleSort(char inputArray[52][4]);
 //uint64_t RandomChoice(char* ID, char* seed, double* rngstate, double hashedSeed, uint64_t min, uint64_t max);

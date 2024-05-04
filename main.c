@@ -10,7 +10,7 @@
 
 #include "instance.h"
 #include "searcher.h"
-#include "dynamictest.h"
+#include "filters.h"
 
 const size_t HASHMAPSIZE = 100;
 
@@ -217,19 +217,44 @@ if (ante[0] - '0' == 1) {
 int main() {
 	
 	//RunTests("testseedA.txt");
-
-
-
-	// Dynamic function calling
 	/*
 	Instance* ip = InstanceCreate("A", 100);
+
+	ip->hashedSeed = 0.65175184267065;
+
+	uint64_t* state = RandomStateFromSeed(NodeIDRandom(ip, "Joker1buf1A"));
+
+	int64_t returnInt = RandomInt(state, 1, (JOKER1END - JOKER1START) - 1);
+	returnInt += JOKER1START;
+
+	free(state);
+
+	printf("\nCard: %" PRIu64, returnInt);
+
+	state = RandomStateFromSeed(NodeIDRandom(ip, "Joker2buf1A"));
+
+	returnInt = RandomInt(state, 1, (JOKER2END - JOKER2START) - 1);
+	returnInt += JOKER2START;
+
+	printf("\nCard: %" PRIu64, returnInt);
+
+	free(state);
+	InstanceDelete(ip);
+	*/
+	//PseudoHashChar("Joker1buf1A");
+
+	// Dynamic function calling
+	
+	Instance* ip = InstanceCreate("A", 100);
+
+	ip->hashedSeed = 0.65175184267065;
 
 	FuncWrapper func = CallFunction("filter");
 
 	(*func)(ip);
 
 	InstanceDelete(ip);
-	*/
+	
 	/*
 	char* testChar = malloc(sizeof(char) * 3);
 	strcpy_s(testChar, 3, "AB");

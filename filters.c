@@ -2,7 +2,19 @@
 #include "filters.h"
 
 void filter(Instance* ip) {
-	printf("\nYou are in dynamic filter");
+	
+	int cards[5] = { 0, 0, 0, 0, 0 };
+
+	for (int ante = 1; ante < 2; ante++) {
+		SetAnte(ip, ante);
+
+		int packIdx = GetRandomPack(ip);
+		GetCardsFromPack(ip, cards, packIdx);
+
+		for (int i = 0; i < 5; i++) {
+			printf("\nCard %d: %d", i, cards[i]);
+		}
+	}
 }
 
 FunctionItem FunctionTable[1] = {

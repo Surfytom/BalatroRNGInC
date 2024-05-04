@@ -168,21 +168,40 @@ double PseudoHashChar(char* c) {
 
 	int k = 32;
 
+	printf("\nPsuedoHashing %s", c);
+
 	for (int i = (strlen(c) - 1); i >= 0; i--) {
 		//printf("\nchar at {%d}: %c", i, c[i]);
 
-		int64_t intPart = (1.1239285023 / num * c[i] * 3.141592653589793116 + 3.141592653589793116 * (i + 1)) * (1 << k);
-		double fract_part = fract(fract((1.1239285023 / num * c[i] * 3.141592653589793116) * (1 << k)) + fract((3.141592653589793116 * (i + 1)) * (1 << k)));
+		//int64_t intPart = (1.1239285023 / num * c[i] * 3.141592653589793116 + 3.141592653589793116 * (i + 1)) * (1 << k);
+		//double fract_part = fract(fract((1.1239285023 / num * c[i] * 3.141592653589793116) * (1 << k)) + fract((3.141592653589793116 * (i + 1)) * (1 << k)));
+		
+		int64_t intPart = ((1.1239285023 / num) * c[i] * 3.14159265358979323846 + 3.14159265358979323846 * (i + 1)) * (1 << k);
+		double fract_part = fract(fract((1.1239285023 / num * c[i] * 3.14159265358979323846) * (1 << k)) + fract((3.14159265358979323846 * (i + 1)) * (1 << k)));
 		num = fract(((double)(intPart)+fract_part) / (1 << k));
 	}
-	//printf("\nNum: %0.25f", num);
+	//num = RoundNFloorDigits(num, 13);
+	printf("\nNum: %0.25f", num);
 	return num;
 }
 
 double RoundDigits(double f, int d) {
 	// Remember this rounds but not actually as there are sometimes trailing numbers (might be accurate enough for task)
 	double power = pow(10, d);
-	return round(f * power) / power;
+
+	//return round(f * power) / power;
+	double t = f * power;
+	//printf("\nt: %0.15f", t);
+	uint64_t g = (t > (floor(t) + 0.5f)) ? (uint64_t)ceil(t) : (uint64_t)floor(t);
+	//printf("\nt2: %" PRIu64, g);
+	return (double)(g / power);
+}
+
+double RoundNFloorDigits(double f, int d) {
+	// Remember this rounds but not actually as there are sometimes trailing numbers (might be accurate enough for task)
+	double power = pow(10, d);
+
+	return floor(f * power) / power;
 }
 
 void BubbleSort(char inputArray[52][4]) {

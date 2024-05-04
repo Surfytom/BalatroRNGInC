@@ -63,6 +63,7 @@ typedef struct Instance {
 	double hashedSeed;
 	char* ante;
 	bool* locked;
+	bool firstPack;
 	//double* rates;
 	//RateObject* rates;
 } Instance;
@@ -83,10 +84,9 @@ uint64_t RandomChoice(Instance* ip, char* id, uint64_t min, uint64_t max);
 int GetRandomPack(Instance* ip);
 char* GetPool(Instance* ip, char* type, int typeStart, int typeEnd, int rarity, char* keyAppend, uint64_t* poolArray);
 uint64_t CreateCard(Instance* ip, char* type, int typeStart, int typeEnd, int rarity, char* forcedKey, char* keyAppend);
-
-void GetCardsFromPack(Instance* ip, uint64_t* cards, int packIdx);
+void GetCardsFromPack(Instance* ip, int* cards, int packIdx);
 int GetCardForShop(Instance* ip);
-void GetCardsForShop(Instance* ip, int64_t* cards, int shopSize);
+void GetCardsForShop(Instance* ip, int* cards, int shopSize);
 
 int GetJokerEdition(Instance* ip, char* keyAppend);
 int GetStandardCardEdition(Instance* ip);

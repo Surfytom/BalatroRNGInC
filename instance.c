@@ -237,6 +237,8 @@ Instance* InstanceCreate(char* seed, size_t hashMapSize) {
 
 	ip->NodeMap = HashMapCreate(hashMapSize);
 
+	ip->firstPack = true;
+
 	return ip;
 }
 
@@ -289,11 +291,30 @@ double NodeIDRandom(Instance* ip, char* id) {
 		e->value = PseudoHashChar(id);
 	}
 
-	e->value = RoundDigits(fract(e->value * 1.72431234 + 2.134453429141), 13);
+	//e->value = RoundDigits(fract(e->value * 1.72431234 + 2.134453429141), 13);
+	double real = RoundDigits(fract(e->value * 1.72431234 + 2.134453429141), 13);
 
-	printf("\nNODEID UPDATE | state of '%s': %0.10f", id, e->value);
+	printf("\nTESETER LOGIC:");
+	double x1 = e->value * 1.72431234;
+	printf("\nx1: %0.15f", x1);
+	double x2 = x1 + 2.134453429141;
+	printf("\nx2: %0.15f", x2);
+	double x3 = fract(x2);
+	printf("\nx3: %0.15f", x3);
+	double x4 = RoundDigits(x3, 13);
+	printf("\nx4: %0.15f", x4);
 
-	return (e->value + ip->hashedSeed) / 2;
+	printf("\nNODEID UPDATE | state of '%s': %0.15f", id, e->value);
+
+	printf("\nNODEID UPDATE | stuff in equation '%s': val: %0.15f | hashed %0.15f", id, e->value, ip->hashedSeed);
+
+	e->value = real;
+
+	double returnDouble = (e->value + ip->hashedSeed) / 2;
+
+	printf("\nNODEID RETURN DOUBLE | state of '%s': %0.15f", id, returnDouble);
+
+	return returnDouble;
 }
 
 uint64_t RandomChoice(Instance* ip, char* id, uint64_t min, uint64_t max) {
@@ -321,6 +342,12 @@ void SetAnte(Instance* ip, int ante) {
 }
 
 int GetRandomPack(Instance* ip) {
+
+	if (ip->firstPack) {
+		ip->firstPack = false;
+		return Buffoon_Pack;
+	}
+
 	char* packSeed = "shop_pack";
 
 	double it = 0.0;
@@ -508,7 +535,9 @@ uint64_t CreateCard(Instance* ip, char* type, int typeStart, int typeEnd, int ra
 	char* returnKey = NULL;
 	returnKey = GetPool(ip, type, typeStart, typeEnd, rarity, keyAppend, rangeValues, returnKey);
 
-	state = RandomStateFromSeed(NodeIDRandom(ip, returnKey, ip->hashedSeed));
+	printf("\n return key: %s", returnKey);
+
+	state = RandomStateFromSeed(NodeIDRandom(ip, returnKey));
 
 	int64_t diff = rangeValues[1] - rangeValues[0];
 	int64_t lower = rangeValues[0];
@@ -518,6 +547,8 @@ uint64_t CreateCard(Instance* ip, char* type, int typeStart, int typeEnd, int ra
 	printf("\nDiff: %" PRIu64, diff);
 
 	int64_t returnInt = RandomInt(state, 1, (rangeValues[1] - rangeValues[0]) - 1);
+
+	printf("\nReturn Int: %" PRIu64 " | Lower %" PRIu64, returnInt, lower);
 	
 	// make sure to free these in the loop to not lose pointers
 	free(rangeValues);
@@ -628,7 +659,7 @@ int GetStandardCardBonus(Instance* ip) {
 	return returnInt;
 }
 
-void GetCardsFromPack(Instance* ip, uint64_t* cards, int packIdx) {
+void GetCardsFromPack(Instance* ip, int* cards, int packIdx) {
 
 	char* c = NULL;
 
@@ -638,6 +669,7 @@ void GetCardsFromPack(Instance* ip, uint64_t* cards, int packIdx) {
 	for (int i = 0; i < PACKS[packIdx].size; i++) {
 
 		card = CreateCard(ip, PACKS[packIdx].type, PACKS[packIdx].start, PACKS[packIdx].end, 0, NULL, PACKS[packIdx].key);
+		cardInt = card;
 
 		int resample = 1;
 		bool foundUniqueCard = false;
@@ -648,7 +680,6 @@ void GetCardsFromPack(Instance* ip, uint64_t* cards, int packIdx) {
 					inCards = true;
 				}
 				if (PACKS[packIdx].start == VOUCHERSTART) {
-					cardInt = card;
 					printf("\nindex: %d", VOUCHERS[cardInt - (VOUCHERSTART + 1)].required);
 					printf("\nbool val: %d", ip->locked[VOUCHERS[cardInt - (VOUCHERSTART + 1)].required]);
 					printf("\ncard: %d", cardInt);
@@ -673,6 +704,7 @@ void GetCardsFromPack(Instance* ip, uint64_t* cards, int packIdx) {
 				char* resampleChar = CombineChars(2, re, resampleIt);
 
 				card = CreateCard(ip, PACKS[packIdx].type, PACKS[packIdx].start, PACKS[packIdx].end, 0, NULL, resampleChar);
+				cardInt = card;
 
 				resample++;
 
@@ -684,7 +716,7 @@ void GetCardsFromPack(Instance* ip, uint64_t* cards, int packIdx) {
 			}
 		}
 
-		cards[i] = card;
+		cards[i] = cardInt;
 
 		c = GetPack(packIdx);
 

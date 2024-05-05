@@ -167,8 +167,9 @@ double PseudoHashChar(char* c) {
 	double num = 1.0;
 
 	int k = 32;
-
+#ifdef DEBUG
 	printf("\nPsuedoHashing %s", c);
+#endif
 
 	for (int i = (strlen(c) - 1); i >= 0; i--) {
 		//printf("\nchar at {%d}: %c", i, c[i]);
@@ -181,7 +182,9 @@ double PseudoHashChar(char* c) {
 		num = fract(((double)(intPart)+fract_part) / (1 << k));
 	}
 	//num = RoundNFloorDigits(num, 13);
+#ifdef DEBUG
 	printf("\nNum: %0.25f", num);
+#endif
 	return num;
 }
 

@@ -6,6 +6,8 @@
 #include <inttypes.h>
 #include <stdlib.h>
 
+#include "debug.h"
+
 extern char NUMOFPACKS;
 
 typedef enum pack {

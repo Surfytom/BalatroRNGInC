@@ -1,4 +1,5 @@
 #define _CRTDBG_MAP_ALLOC
+#define DEBUG
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -11,6 +12,7 @@
 #include "instance.h"
 #include "searcher.h"
 #include "filters.h"
+#include "debug.h"
 
 const size_t HASHMAPSIZE = 100;
 
@@ -246,8 +248,6 @@ int main() {
 	// Dynamic function calling
 	
 	Instance* ip = InstanceCreate("A", 100);
-
-	ip->hashedSeed = 0.65175184267065;
 
 	FuncWrapper func = CallFunction("filter");
 

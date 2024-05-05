@@ -3,9 +3,11 @@
 #pragma once
 
 #include <stdarg.h>
+
 #include "HashMapLib/hashmap.h"
 #include "randomutils.h"
 #include "packs.h"
+#include "debug.h"
 
 typedef struct CharArray {
 	char** array;

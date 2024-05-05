@@ -9,6 +9,8 @@
 #include <inttypes.h>
 #include <string.h>
 
+#include "debug.h"
+
 typedef union DoubleLong {
 	double d;
 	uint64_t ul;

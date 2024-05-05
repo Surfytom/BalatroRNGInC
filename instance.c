@@ -294,6 +294,7 @@ double NodeIDRandom(Instance* ip, char* id) {
 	//e->value = RoundDigits(fract(e->value * 1.72431234 + 2.134453429141), 13);
 	double real = RoundDigits(fract(e->value * 1.72431234 + 2.134453429141), 13);
 
+#ifdef DEBUG
 	printf("\nTESETER LOGIC:");
 	double x1 = e->value * 1.72431234;
 	printf("\nx1: %0.15f", x1);
@@ -307,12 +308,13 @@ double NodeIDRandom(Instance* ip, char* id) {
 	printf("\nNODEID UPDATE | state of '%s': %0.15f", id, e->value);
 
 	printf("\nNODEID UPDATE | stuff in equation '%s': val: %0.15f | hashed %0.15f", id, e->value, ip->hashedSeed);
-
+#endif
 	e->value = real;
 
 	double returnDouble = (e->value + ip->hashedSeed) / 2;
-
+#ifdef DEBUG
 	printf("\nNODEID RETURN DOUBLE | state of '%s': %0.15f", id, returnDouble);
+#endif
 
 	return returnDouble;
 }
@@ -534,22 +536,27 @@ uint64_t CreateCard(Instance* ip, char* type, int typeStart, int typeEnd, int ra
 
 	char* returnKey = NULL;
 	returnKey = GetPool(ip, type, typeStart, typeEnd, rarity, keyAppend, rangeValues, returnKey);
-
+#ifdef DEBUG
 	printf("\n return key: %s", returnKey);
+#endif
 
 	state = RandomStateFromSeed(NodeIDRandom(ip, returnKey));
 
 	int64_t diff = rangeValues[1] - rangeValues[0];
 	int64_t lower = rangeValues[0];
 
+#ifdef DEBUG
 	printf("\nrange: lower: %" PRIu64, rangeValues[0]);
 	printf(" higher: %" PRIu64, rangeValues[1]);
 	printf("\nDiff: %" PRIu64, diff);
+#endif
 
 	int64_t returnInt = RandomInt(state, 1, (rangeValues[1] - rangeValues[0]) - 1);
 
+#ifdef DEBUG
 	printf("\nReturn Int: %" PRIu64 " | Lower %" PRIu64, returnInt, lower);
-	
+#endif
+
 	// make sure to free these in the loop to not lose pointers
 	free(rangeValues);
 	free(state);
@@ -566,7 +573,9 @@ int GetJokerEdition(Instance* ip, char* keyAppend) {
 
 	free(combinedChar);
 
+#ifdef DEBUG
 	printf("\nRETURN INT FOR EDITION: %d", returnInt);
+#endif
 
 	return returnInt;
 }
@@ -646,7 +655,9 @@ int GetStandardCardBonus(Instance* ip) {
 		int64_t diff = (BONUSEND - BONUSSTART) - 1;
 		int64_t lower = BONUSSTART;
 
+#ifdef DEBUG
 		printf("\nDiff in bonus: %" PRIu64, diff);
+#endif
 
 		returnUInt = RandomInt(state, 1, diff);
 		returnUInt += lower;
@@ -680,9 +691,13 @@ void GetCardsFromPack(Instance* ip, int* cards, int packIdx) {
 					inCards = true;
 				}
 				if (PACKS[packIdx].start == VOUCHERSTART) {
+
+#ifdef DEBUG
 					printf("\nindex: %d", VOUCHERS[cardInt - (VOUCHERSTART + 1)].required);
 					printf("\nbool val: %d", ip->locked[VOUCHERS[cardInt - (VOUCHERSTART + 1)].required]);
 					printf("\ncard: %d", cardInt);
+#endif
+
 					if (ip->locked[VOUCHERS[cardInt - (VOUCHERSTART + 1)].required] == true) {
 						inCards = true;
 					}
@@ -720,8 +735,10 @@ void GetCardsFromPack(Instance* ip, int* cards, int packIdx) {
 
 		c = GetPack(packIdx);
 
+#ifdef DEBUG
 		printf("\nPack: %s card: %" PRIu64, c, card);
 		printf(" start: %d end : %d", PACKS[packIdx].start, PACKS[packIdx].end);
+#endif
 
 		free(c);
 	}
@@ -759,7 +776,11 @@ int GetCardForShop(Instance* ip) {
 	int cardInt = NULL;
 
 	for (int i = 0; i < 5; i++) {
+
+#ifdef DEBUG
 		printf("\ni: %d rate: %0.10f type: %s polled rate: %0.10f", i, RATES[i].rate, RATES[i].type, polledRate);
+#endif
+
 		currentRate = RATES[i].rate;
 
 		

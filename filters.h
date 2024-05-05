@@ -1,5 +1,6 @@
 #pragma once
 #include "Instance.h"
+#include "debug.h"
 
 typedef void (*FuncWrapper)(Instance* ip);
 

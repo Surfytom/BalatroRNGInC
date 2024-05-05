@@ -5,6 +5,7 @@
 #include <stdlib.h>
 
 #include "instance.h"
+#include "debug.h"
 
 char POSSIBLECHARS[37];
 

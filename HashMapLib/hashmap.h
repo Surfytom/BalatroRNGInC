@@ -8,6 +8,8 @@
 #include <string.h>
 #include <inttypes.h>
 
+#include "../debug.h"
+
 typedef struct entry {
 	char* key;
 	double value;

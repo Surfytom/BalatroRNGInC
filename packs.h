@@ -29,6 +29,7 @@ typedef enum pack {
     Mega_Spectral_Pack,
     Vouchers,
     VouchersFromTag,
+    Tags,
 } pack;
 
 typedef struct WeightedItem {
@@ -46,7 +47,7 @@ typedef struct Joker {
     double weight;
 } Joker;
 
-extern weighteditem PACKS[18];
+extern weighteditem PACKS[19];
 
 typedef struct Voucher {
     int enumNum;
@@ -408,6 +409,33 @@ typedef enum Item {
     luckyCard,
     BONUSEND,
 
+    TAGSTART,
+    Uncommon_Tag,
+    Rare_Tag,
+    Negative_Tag,
+    Foil_Tag,
+    Holographic_Tag,
+    Polychrome_Tag,
+    Investment_Tag,
+    Voucher_Tag,
+    Boss_Tag,
+    Standard_Tag,
+    Charm_Tag,
+    Meteor_Tag,
+    Buffoon_Tag,
+    Handy_Tag,
+    Garbage_Tag,
+    Ethereal_Tag,
+    Coupon_Tag,
+    Double_Tag,
+    Juggle_Tag,
+    D6_Tag,
+    Topup_Tag,
+    Skip_Tag,
+    Orbital_Tag,
+    Economy_Tag,
+    TAGEND,
+
     BOSSSTART,
     The_Arm,
     The_Club,
@@ -438,6 +466,13 @@ typedef enum Item {
     The_Wheel,
     The_Window,
     BOSSEND,
+
+    SUITSTART,
+    SPADES,
+    HEARTS,
+    DIAMONDS,
+    CLUBS,
+    SUITEND,
 };
 
 #endif

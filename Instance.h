@@ -43,6 +43,17 @@ typedef struct RatesObject {
 	double playingCardRate;
 } RatesObject;
 
+typedef struct JokerModifiers {
+	bool eternal;
+	bool perishable;
+	bool rental;
+} JokerModifiers;
+
+typedef struct Boss {
+	int bossIndex;
+	int timesUsed;
+};
+
 extern double BASERATES[7];
 extern char* RATETYPES[7];
 extern RateObject RATES[7];
@@ -66,6 +77,7 @@ typedef struct Instance {
 	char* ante;
 	bool* locked;
 	bool firstPack;
+	int deckType;
 	//double* rates;
 	//RateObject* rates;
 } Instance;
@@ -75,6 +87,7 @@ char* CombineChars(int count, ...);
 Instance* InstanceCreate(char* seed, size_t hashMapSize);
 void InstanceDelete(Instance* ip);
 
+void InstanceSetDeck(Instance* ip, int deckType);
 void SetAnte(Instance* ip, int ante);
 
 entry* NodeIDGet(Instance* ip, char* id);
@@ -91,10 +104,22 @@ int GetCardForShop(Instance* ip);
 void GetCardsForShop(Instance* ip, int* cards, int shopSize);
 
 int GetJokerEdition(Instance* ip, char* keyAppend);
+void GetJokerModifiers(Instance* ip, JokerModifiers* modifiers, bool fromPack);
 int GetStandardCardEdition(Instance* ip);
 int GetStandardCardSeal(Instance* ip);
 int GetStandardCardBonus(Instance* ip);
 int GetVoucher(Instance* ip, bool fromTag);
+int GetNextBoss(Instance* ip);
+int GetNextTag(Instance* ip);
+
+int UseAura(Instance* ip);
+int UseSigil(Instance* ip);
+int UseOuija(Instance* ip);
+void UseEmporer(Instance* ip, int* cards);
+void UseHighPriestess(Instance* ip, int* cards);
+int UseJudgement(Instance* ip);
+int UseSoul(Instance* ip);
+int UseWraith(Instance* ip);
 
 char* GetPackTypeForRates(int n);
 char* GetSeal(int n);
@@ -121,26 +146,24 @@ typedef enum RANKS {
 	king,
 	ace
 };
-/*
-typedef enum BONUSES {
-	chips,
-	multiplyBonus,
-	goldBonus,
-	steel
-};
 
-typedef enum EFFECTS {
-	multiplyEffect,
-	polychrome,
-	foil
+typedef enum DECKS {
+	redDeck,
+	blueDeck,
+	yellowDeck,
+	greenDeck,
+	blackDeck,
+	magicDeck,
+	nebulaDeck,
+	ghostDeck,
+	abandonedDeck,
+	checkeredDeck,
+	zodiacDeck,
+	paintedDeck,
+	analglyphDeck,
+	plasmaDeck,
+	erraticDeck,
 };
-
-typedef enum SEALS {
-	goldSeal,
-	red,
-	blue
-};
-*/
 
 extern char** SUITS[4];
 

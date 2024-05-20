@@ -1,5 +1,4 @@
 #define _CRTDBG_MAP_ALLOC
-#define DEBUG
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -16,13 +15,15 @@
 
 const size_t HASHMAPSIZE = 100;
 
+
 void RunTests(char* fileName) {
 
-	FILE* fp = fopen(fileName, "r");
+	FILE* fp;
+	errno_t err = fopen_s(&fp, fileName, "r");
 
-	if (fp == NULL) {
-		printf("\nFAILED TO OPEN %s", fileName);
-		return;
+	if (err != 0) {
+		printf("\nFile could not be opened!!!");
+		return NULL;
 	}
 
 	char line[50];
@@ -196,11 +197,10 @@ if (ante[0] - '0' == 1) {
 */
 
 // TODO: 
-// check if spectral packs work when getting cards from them
-// Same with planet packs
-// Seed searcher - generate all seeds done
-// Boss blind ability randomisation
-// Write test cases to quickly test if all the functions are working as expected
+// check if planet packs work
+// using tags
+// using spectral cards
+// Write test cases to quickly test if all the functions are working as expected | done 1 need more
 
 // Done:
 // joker packs edition generation - done
@@ -209,7 +209,13 @@ if (ante[0] - '0' == 1) {
 // Implement enhanced and base card generation - done
 // Implement joker edition generation - might be done
 // Implement vouchers
-//	Vouchers pool : check if voucher needs another vouchar to be picked
+// Vouchers pool : check if voucher needs another vouchar to be picked
+// check if spectral packs work when getting cards from them
+// Seed searcher - generate all seeds
+// planet rate fixed now shows right in shop
+// Boss blind ability randomisation
+// tags generation for each blind
+// using abilities that are random (judgment etc)
 
 // Ideas
 // - Cards are a struct with certain attributes such as the soul
@@ -247,11 +253,43 @@ int main() {
 
 	// Dynamic function calling
 	
-	Instance* ip = InstanceCreate("A", 100);
+	Instance* ip = InstanceCreate("K8D23YF1", 100);
 
-	FuncWrapper func = CallFunction("filter");
+	int cards[5] = { 0 };
 
-	(*func)(ip);
+	GetCardsFromPack(ip, cards, Mega_Arcana_Pack);
+
+	for (int i = 0; i < 5; i++) {
+		printf("\nCard %d: %d", i + 1, cards[i]);
+		cards[i] = 0;
+	}
+
+	printf("\nSoul card: %d", UseSoul(ip));
+
+	/*
+	printf("\nJudgement card: %d", UseJudgement(ip));
+
+	int cards[2] = {0, 0};
+
+	UseEmporer(ip, cards);
+
+	for (int i = 0; i < 2; i++) {
+		printf("\nEmporer Card %d: %d", i+1, cards[i]);
+		cards[i] = 0;
+	}
+
+	UseHighPriestess(ip, cards);
+
+	for (int i = 0; i < 2; i++) {
+		printf("\nHigh Priestess Card %d: %d", i + 1, cards[i]);
+		cards[i] = 0;
+	}
+
+	printf("\nWraith Card: %d", UseWraith(ip));
+	*/
+	//FuncWrapper func = CallFunction("filter");
+
+	//(*func)(ip, false, false);
 
 	InstanceDelete(ip);
 	

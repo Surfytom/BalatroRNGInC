@@ -66,8 +66,8 @@ char** BASE_DECK[52] = {
 RateObject RATES[7] = {
 	{20, "Joker", JOKERSTART, JOKEREND},
 	{4, "Tarot",  TAROTSTART, TAROTEND},
-	{0, "Planet",  PLANETSTART, PLANETEND},
-	{4, "Base",  JOKERSTART, JOKEREND},
+	{4, "Planet",  PLANETSTART, PLANETEND},
+	{0, "Base",  JOKERSTART, JOKEREND},
 	{0, "Spectral",  SPECTRALSTART, SPECTRALEND},
 	{1, "Edition", JOKERSTART, JOKEREND},
 	{28, "", 0, 0},
@@ -98,7 +98,7 @@ char* CombineChars(int count, ...) {
 	va_list list;
 
 	va_start(list, count);
-	
+
 	char* tmpChar = va_arg(list, char*);
 	size_t charSize = strlen(tmpChar) + 1;
 
@@ -114,7 +114,7 @@ char* CombineChars(int count, ...) {
 
 	int i;
 	for (i = 1; i < count; i++) {
-		
+
 		tmpChar = va_arg(list, char*);
 		charSize = strlen(tmpChar) + 1;
 
@@ -208,7 +208,7 @@ Instance* InstanceCreate(char* seed, size_t hashMapSize) {
 	ip->rates->playingCardRate = 0;
 	*/
 
-	ip->locked = calloc(CONSUMABLEEND, sizeof(bool));
+	ip->locked = calloc(BOSSEND, sizeof(bool));
 
 	if (ip->locked == NULL) {
 		free(ip);
@@ -235,9 +235,40 @@ Instance* InstanceCreate(char* seed, size_t hashMapSize) {
 		}
 	}
 
+	// lock bosses at ante 1
+	ip->locked[The_Mouth] = true;
+	ip->locked[The_Fish] = true;
+	ip->locked[The_Wall] = true;
+	ip->locked[The_House] = true;
+	ip->locked[The_Mark] = true;
+	ip->locked[The_Wheel] = true;
+	ip->locked[The_Arm] = true;
+	ip->locked[The_Water] = true;
+	ip->locked[The_Needle] = true;
+	ip->locked[The_Flint] = true;
+	ip->locked[The_Tooth] = true;
+	ip->locked[The_Eye] = true;
+	ip->locked[The_Plant] = true;
+	ip->locked[The_Serpent] = true;
+	ip->locked[The_Ox] = true;
+
+	
+	// lock tags at ante 1 if fresh profile
+	ip->locked[Negative_Tag] = true;
+	ip->locked[Standard_Tag] = true;
+	ip->locked[Meteor_Tag] = true;
+	ip->locked[Buffoon_Tag] = true;
+	ip->locked[Handy_Tag] = true;
+	ip->locked[Garbage_Tag] = true;
+	ip->locked[Ethereal_Tag] = true;
+	ip->locked[Topup_Tag] = true;
+	ip->locked[Orbital_Tag] = true;
+
 	ip->NodeMap = HashMapCreate(hashMapSize);
 
 	ip->firstPack = true;
+
+	ip->deckType = redDeck;
 
 	return ip;
 }
@@ -261,6 +292,18 @@ void InstanceDelete(Instance* ip) {
 	HashMapDelete(ip->NodeMap);
 
 	free(ip);
+}
+
+void InstanceSetDeck(Instance* ip, int deckType) {
+	ip->deckType = deckType;
+
+	if (ip->deckType == ghostDeck) {
+		RATES[4].rate += 2;
+		RATES[6].rate += 2;
+	}
+	if (ip->deckType == erraticDeck) {
+		// randomize starting deck
+	}
 }
 
 entry* NodeIDGet(Instance* ip, char* id) {
@@ -400,7 +443,12 @@ char* GetPool(Instance* ip, char* type, int typeStart, int typeEnd, int rarity, 
 		free(combinedChar);
 		free(state);
 
-		if (dbl.d > 0.95) {
+		if (rarity == 4) {
+			poolStart = JOKER4START;
+			poolEnd = JOKER4END;
+			rarityChar = "4";
+		}
+		else if (dbl.d > 0.95 || rarity == 3) {
 			poolStart = JOKER3START;
 			poolEnd = JOKER3END;
 			rarityChar = "3";
@@ -418,13 +466,13 @@ char* GetPool(Instance* ip, char* type, int typeStart, int typeEnd, int rarity, 
 
 		poolKey = CombineChars(3, type, rarityChar, keyAppend);
 	}
-	else if (typeStart == DECKSTART){
+	else if (typeStart == DECKSTART) {
 
 		poolStart = typeStart;
 		poolEnd = typeEnd;
 		poolKey = CombineChars(2, "front", keyAppend);
 	}
-	else if (typeStart == VOUCHERSTART) {
+	else if (typeStart == VOUCHERSTART || typeStart == TAGSTART) {
 
 		poolStart = typeStart;
 		poolEnd = typeEnd;
@@ -536,6 +584,7 @@ uint64_t CreateCard(Instance* ip, char* type, int typeStart, int typeEnd, int ra
 
 	char* returnKey = NULL;
 	returnKey = GetPool(ip, type, typeStart, typeEnd, rarity, keyAppend, rangeValues, returnKey);
+
 #ifdef DEBUG
 	printf("\n return key: %s", returnKey);
 #endif
@@ -580,6 +629,41 @@ int GetJokerEdition(Instance* ip, char* keyAppend) {
 	return returnInt;
 }
 
+void GetJokerModifiers(Instance* ip, JokerModifiers* modifiers, bool fromPack) {
+
+	char* key = fromPack ? "packetper" : "etperpoll";
+
+	char* combinedChar = CombineChars(3, key, ip->ante, ip->seed);
+
+	int64_t* state = RandomStateFromSeed(NodeIDRandom(ip, combinedChar));
+
+	dbllong dbl = RandomDouble(state);
+
+	free(combinedChar);
+	free(state);
+
+	if (dbl.d > 0.7) {
+		modifiers->eternal = true;
+	} else if (dbl.d > 0.4 && dbl.d <= 0.7) {
+		modifiers->perishable = true;
+	}
+
+	key = fromPack ? "packssjr" : "ssjr";
+
+	combinedChar = CombineChars(3, key, ip->ante, ip->seed);
+
+	state = RandomStateFromSeed(NodeIDRandom(ip, combinedChar));
+
+	dbl = RandomDouble(state);
+
+	free(combinedChar);
+	free(state);
+
+	if (dbl.d > 0.7) {
+		modifiers->rental = true;
+	}
+}
+
 int GetStandardCardEdition(Instance* ip) {
 
 	char* combinedChar = CombineChars(3, "standard_edition", ip->ante, ip->seed);
@@ -606,7 +690,7 @@ int GetStandardCardSeal(Instance* ip) {
 		free(state);
 		free(combinedChar);
 
-		combinedChar = CombineChars(3, "stdsealtype", ip->ante, ip->seed);	
+		combinedChar = CombineChars(3, "stdsealtype", ip->ante, ip->seed);
 
 		state = RandomStateFromSeed(NodeIDRandom(ip, combinedChar));
 
@@ -633,13 +717,13 @@ int GetStandardCardSeal(Instance* ip) {
 }
 
 int GetStandardCardBonus(Instance* ip) {
-	
+
 	char* combinedChar = CombineChars(3, "stdset", ip->ante, ip->seed);
-	
+
 	int64_t* state = RandomStateFromSeed(NodeIDRandom(ip, combinedChar));
 
 	dbllong dbl = RandomDouble(state);
-	
+
 	uint64_t returnUInt = 0;
 	int returnInt = 0;
 
@@ -672,8 +756,6 @@ int GetStandardCardBonus(Instance* ip) {
 
 void GetCardsFromPack(Instance* ip, int* cards, int packIdx) {
 
-	char* c = NULL;
-
 	uint64_t card = 0;
 	int cardInt = 0;
 
@@ -686,7 +768,7 @@ void GetCardsFromPack(Instance* ip, int* cards, int packIdx) {
 		bool foundUniqueCard = false;
 		while (!foundUniqueCard) {
 			bool inCards = false;
-			for (int t = 0; t < i+1; t++) {
+			for (int t = 0; t < i + 1; t++) {
 				if (card == cards[t]) {
 					inCards = true;
 				}
@@ -699,6 +781,12 @@ void GetCardsFromPack(Instance* ip, int* cards, int packIdx) {
 #endif
 
 					if (ip->locked[VOUCHERS[cardInt - (VOUCHERSTART + 1)].required] == true) {
+						inCards = true;
+					}
+				}
+				if (PACKS[packIdx].start == TAGSTART) {
+
+					if (ip->locked[cardInt] == true) {
 						inCards = true;
 					}
 				}
@@ -733,14 +821,13 @@ void GetCardsFromPack(Instance* ip, int* cards, int packIdx) {
 
 		cards[i] = cardInt;
 
-		c = GetPack(packIdx);
-
 #ifdef DEBUG
+		char* c = NULL;
+		c = GetPack(packIdx);
 		printf("\nPack: %s card: %" PRIu64, c, card);
 		printf(" start: %d end : %d", PACKS[packIdx].start, PACKS[packIdx].end);
-#endif
-
 		free(c);
+#endif
 	}
 }
 
@@ -783,7 +870,7 @@ int GetCardForShop(Instance* ip) {
 
 		currentRate = RATES[i].rate;
 
-		
+
 		if (polledRate > checkRate && polledRate <= (checkRate + currentRate)) {
 
 			card = CreateCard(ip, RATES[i].type, RATES[i].typeStart, RATES[i].typeEnd, 0, NULL, "sho");
@@ -806,11 +893,10 @@ void GetCardsForShop(Instance* ip, int* cards, int shopSize) {
 
 int GetVoucher(Instance* ip, bool fromTag) {
 
-	uint64_t cards[1] = {0};
+	uint64_t cards[1] = { 0 };
 	int returnCard = 0;
 
 	GetCardsFromPack(ip, cards, fromTag ? VouchersFromTag : Vouchers);
-	//CreateCard(ip, fromTag ? "Voucher_fromtag" : "Voucher", VOUCHERSTART, VOUCHEREND, 0, NULL, "");
 
 	returnCard = cards[0];
 
@@ -821,6 +907,156 @@ int GetVoucher(Instance* ip, bool fromTag) {
 	}
 
 	return returnCard;
+}
+
+int GetNextBoss(Instance* ip) {
+
+	int ante = ip->ante[0] - '0';
+
+	if (ante >= 2) {
+		ip->locked[The_Mouth] = false;
+		ip->locked[The_Fish] = false;
+		ip->locked[The_Wall] = false;
+		ip->locked[The_House] = false;
+		ip->locked[The_Mark] = false;
+		ip->locked[The_Wheel] = false;
+		ip->locked[The_Arm] = false;
+		ip->locked[The_Water] = false;
+		ip->locked[The_Needle] = false;
+		ip->locked[The_Flint] = false;
+	}
+	else if (ante >= 3) {
+		ip->locked[The_Tooth] = false;
+		ip->locked[The_Eye] = false;
+	}
+	else if (ante >= 4) { ip->locked[The_Plant] = false; }
+	else if (ante >= 5) { ip->locked[The_Serpent] = false; }
+	else if (ante >= 6) { ip->locked[The_Ox] = false; }
+
+	int bossPool[BOSSEND - BOSSSTART] = {0};
+
+	if (bossPool == NULL) {
+		return -1;
+	}
+
+	int bossCount = 0;
+
+	for (int i = BOSSSTART + 1; i < BOSSEND; i++) {
+		if (!ip->locked[i]) {
+			int mod = ante % 8;
+			if ((mod == 0 && (i >= Amber_Acorn && i <= Violet_Vessel)) || (mod != 0 && ((i >= The_Arm && i <= The_Eye) || (i >= The_Fish && i <= The_Window)))) {
+				bossPool[bossCount] = i;
+				bossCount++;
+			}
+		}
+	}
+	if (bossCount == 0) {
+		for (int i = BOSSSTART + 1; i < BOSSEND; i++) {
+			int mod = ante % 8;
+			if ((mod == 0 && (i >= Amber_Acorn && i <= Violet_Vessel)) || (mod != 0 && ((i >= The_Arm && i <= The_Eye) || (i >= The_Fish && i <= The_Window)))) {
+				ip->locked[i] = false;
+			}
+		}
+		return GetNextBoss(ip);
+	}
+
+	char* combinedChars = CombineChars(2, "boss", ip->seed);
+
+	uint64_t* state = RandomStateFromSeed(NodeIDRandom(ip, combinedChars));
+
+	int64_t diff = bossCount;
+
+	uint64_t bossChosen = RandomInt(state, 0, diff-1);
+
+	int bossChosenInt = bossPool[(int)bossChosen];
+
+	free(combinedChars);
+	free(state);
+
+	ip->locked[bossChosenInt] = true;
+
+	return bossChosenInt;
+}
+
+int GetNextTag(Instance* ip) {
+
+	int ante = ip->ante[0] - '0';
+
+	if (ante >= 2) {
+		ip->locked[Negative_Tag] = false;
+		ip->locked[Standard_Tag] = false;
+		ip->locked[Meteor_Tag] = false;
+		ip->locked[Buffoon_Tag] = false;
+		ip->locked[Handy_Tag] = false;
+		ip->locked[Garbage_Tag] = false;
+		ip->locked[Ethereal_Tag] = false;
+		ip->locked[Topup_Tag] = false;
+		ip->locked[Orbital_Tag] = false;
+	}
+
+	
+	int cards[1] = { 0 };
+
+	GetCardsFromPack(ip, cards, Tags);
+
+	return cards[0];
+}
+
+int UseAura(Instance* ip) {
+	return PollEdition(ip, "aura", -1.0, true, true);
+}
+
+int UseSigil(Instance* ip) {
+	uint64_t diff = (SUITEND - SUITSTART) - 1;
+
+	char* combinedChars = CombineChars(2, "sigil", ip->seed);
+
+	uint64_t* state = RandomStateFromSeed(NodeIDRandom(ip, combinedChars));
+
+	uint64_t suit = RandomInt(state, 0, diff);
+
+	free(combinedChars);
+	free(state);
+
+	return (int)suit;
+}
+
+int UseOuija(Instance* ip) {
+
+	char* combinedChars = CombineChars(2, "ouiji", ip->seed);
+
+	uint64_t* state = RandomStateFromSeed(NodeIDRandom(ip, combinedChars));
+
+	uint64_t rank = RandomInt(state, 1, 13);
+
+	free(combinedChars);
+	free(state);
+
+	return (int)rank;
+}
+
+void UseEmporer(Instance* ip, int* cards) {
+	for (int i = 0; i < 2; i++) {
+		cards[i] = (int)CreateCard(ip, "Tarot", TAROTSTART, TAROTEND, 0, NULL, "emp");
+	}
+}
+
+void UseHighPriestess(Instance* ip, int* cards) {
+	for (int i = 0; i < 2; i++) {
+		cards[i] = (int)CreateCard(ip, "Planet", PLANETSTART, PLANETEND, 0, NULL, "pri");
+	}
+}
+
+int UseJudgement(Instance* ip) {
+	return (int)CreateCard(ip, "Joker", JOKERSTART, JOKEREND, NULL, NULL, "jud");
+}
+
+int UseSoul(Instance* ip) {
+	return (int)CreateCard(ip, "Joker", JOKERSTART, JOKEREND, 4, NULL, "sou");
+}
+
+int UseWraith(Instance* ip) {
+	return (int)CreateCard(ip, "Joker", JOKERSTART, JOKEREND, 3, NULL, "wra");
 }
 
 char* GetPackTypeForRates(int n) {
@@ -995,6 +1231,36 @@ char* GetEffect(int n) {
 		break;
 	default:
 		strcpy_s(returnCharPtr, sizeOfMaxChar * sizeof(char), "NoEffect");
+	}
+
+	return returnCharPtr;
+}
+
+char* GetEditionString(int n) {
+
+	int sizeOfMaxChar = 11;
+
+	char* returnCharPtr = malloc(sizeOfMaxChar * sizeof(char));
+
+	if (returnCharPtr == NULL) {
+		return NULL;
+	}
+
+	switch (n) {
+		case 310:
+			strcpy_s(returnCharPtr, sizeOfMaxChar * sizeof(char), "Negative");
+			break;
+		case 311:
+			strcpy_s(returnCharPtr, sizeOfMaxChar * sizeof(char), "Polychrome");
+			break;
+		case 312:
+			strcpy_s(returnCharPtr, sizeOfMaxChar * sizeof(char), "Holo");
+			break;
+		case 313:
+			strcpy_s(returnCharPtr, sizeOfMaxChar * sizeof(char), "Foil");
+			break;
+		default:
+			strcpy_s(returnCharPtr, sizeOfMaxChar * sizeof(char), "NoEffect");
 	}
 
 	return returnCharPtr;

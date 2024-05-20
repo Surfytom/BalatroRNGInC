@@ -2,7 +2,7 @@
 
 char NUMOFPACKS = 16;
 
-weighteditem PACKS[18] = {
+weighteditem PACKS[19] = {
    {RETRY, 22.42, 0, 0, 0, "", ""}, //total
    {Arcana_Pack, 4, 3, TAROTSTART, TAROTEND, "Tarot", "ar1"},
    {Jumbo_Arcana_Pack, 2, 5, TAROTSTART, TAROTEND, "Tarot", "ar1"},
@@ -21,6 +21,7 @@ weighteditem PACKS[18] = {
    {Mega_Spectral_Pack, 0.07, 4, SPECTRALSTART, SPECTRALEND, "Spectral", "spe"},
    {Vouchers, 0.0, 1, VOUCHERSTART, VOUCHEREND, "Voucher", ""},
    {VouchersFromTag, 0.0, 1, VOUCHERSTART, VOUCHEREND, "Voucher_fromtag", ""},
+   {Tags, 0.0, 1, TAGSTART, TAGEND, "Tag", ""},
 };
 
 Voucher VOUCHERS[32] = {

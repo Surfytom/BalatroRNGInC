@@ -11,7 +11,10 @@ void filter(Instance* ip, bool showPacks, bool showShops, bool showBosses, bool 
 
 	for (int ante = 1; ante < 4; ante++) {
 		SetAnte(ip, ante);
-		//printf("\nANTE %d", ante);
+
+		if (showPacks || showShops || showBosses || showTags) {
+			printf("\nANTE %d", ante);
+		}
 
 		if (showBosses) {
 			printf("\n\tBOSS: %d", GetNextBoss(ip));
@@ -32,7 +35,7 @@ void filter(Instance* ip, bool showPacks, bool showShops, bool showBosses, bool 
 
 					for (int i = 0; i < 5; i++) {
 
-						if (cards[i] > 0) { printf("\n\t\t\tCard %d: %d", i + 1, cards[i]); }
+						if (cards[i] > 0) { printf("\n\t\t\tCard %d: %3d", i + 1, cards[i]); }
 
 						if (cards[i] > JOKERSTART && cards[i] < JOKEREND) {
 							jokerEdition = GetJokerEdition(ip, "sho");
@@ -44,9 +47,21 @@ void filter(Instance* ip, bool showPacks, bool showShops, bool showBosses, bool 
 
 							GetJokerModifiers(ip, &modifiers, false);
 
+							if (modifiers.eternal) {
+								printf(" Eternal");
+							}
+							if (modifiers.perishable) {
+								printf(" Perishable");
+							}
+							if (modifiers.rental) {
+								printf(" Rental");
+							}
+
+							/*
 							printf("\nModifier Eternal    %s", modifiers.eternal ? "true" : "false");
 							printf("\nModifier Perishable %s", modifiers.perishable ? "true" : "false");
 							printf("\nModifier Rental     %s", modifiers.rental ? "true" : "false");
+							*/
 						}
 					}
 
@@ -65,17 +80,28 @@ void filter(Instance* ip, bool showPacks, bool showShops, bool showBosses, bool 
 
 					for (int i = 0; i < 5; i++) {
 						if (cards[i] > 0) {
-							printf("\n\t\t\t\tCard %d: %d", i + 1, cards[i]);
+							printf("\n\t\t\t\tCard %d: %3d", i + 1, cards[i]);
 
 							if (packIdx >= Buffoon_Pack && packIdx <= Mega_Buffoon_Pack) {
 								JokerModifiers modifiers = { modifiers.eternal = false, modifiers.perishable = false, modifiers.rental = false };
 
 								GetJokerModifiers(ip, &modifiers, true);
 
-
+								if (modifiers.eternal) {
+									printf(" Eternal");
+								}
+								if (modifiers.perishable) {
+									printf(" Perishable");
+								}
+								if (modifiers.rental) {
+									printf(" Rental");
+								}
+								
+								/*
 								printf("\nModifier Eternal    %s", modifiers.eternal ? "true" : "false");
 								printf("\nModifier Perishable %s", modifiers.perishable ? "true" : "false");
 								printf("\nModifier Rental     %s", modifiers.rental ? "true" : "false");
+								*/
 							}
 						}
 					}

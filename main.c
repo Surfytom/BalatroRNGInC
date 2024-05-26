@@ -53,10 +53,43 @@ if (ante[0] - '0' == 1) {
 
 int main() {
 	
+	CardArray* deck = malloc(sizeof(CardArray));
+
+	deck->size = 52;
+
+	deck->array = calloc(deck->size, sizeof(Cardtmp*));
+
+	for (int i = 0; i < 52; i++) {
+		deck->array[i] = calloc(1, sizeof(Cardtmp));
+		memcpy(deck->array[i], &BASE_DECK_2[i], sizeof(Cardtmp));
+	}
+
+	for (int i = 0; i < 52; i++) {
+		printf("\nCard %2d: suit ", i+1);
+		PrintItem(deck->array[i]->suit);
+		printf(" | rank %c", deck->array[i]->rank);
+	}
+
+	for (int i = 0; i < 52; i++) {
+		free(deck->array[i]);
+	}
+
+	free(deck->array);
+	free(deck);
+
 	//RunTests("testseedA.txt");
 
 	// Dynamic function calling
-	
+	/*
+	Instance* ip = InstanceCreate("ABC", HASHMAPSIZE);
+
+	FuncWrapper func = CallFunction("filter");
+
+	(*func)(ip, true, true, true, true);
+
+	InstanceDelete(ip);
+	*/
+	/*
 	char* seed = malloc(2);
 	strcpy_s(seed, 2, "C");
 	int seedTotal = 1;

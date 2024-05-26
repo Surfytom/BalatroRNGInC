@@ -59,6 +59,7 @@ extern Voucher VOUCHERS[32];
 //char* GetPackKey(int n);
 char* GetPackType(int n);
 char* GetPack(int n);
+void PrintItem(int item);
 
 typedef enum Item {
     retry,

@@ -22,6 +22,14 @@ typedef struct Card {
 	int seal;
 } Card;
 
+typedef struct Cardtmp {
+	int suit;
+	char rank;
+	int effect;
+	int bonus;
+	int seal;
+} Cardtmp;
+
 typedef struct CardArray {
 	Card** array;
 	size_t size;
@@ -58,6 +66,7 @@ extern double BASERATES[7];
 extern char* RATETYPES[7];
 extern RateObject RATES[7];
 extern char** BASE_DECK[52];
+extern Cardtmp BASE_DECK_2[52];
 
 enum RATESINDEX {
 	JOKERRATE,

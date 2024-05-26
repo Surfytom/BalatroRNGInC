@@ -52,6 +52,12 @@ if (ante[0] - '0' == 1) {
 // - You can then call a function to use these cards to see what they will reveal
 
 int main() {
+
+	char* seed = "ABC";
+
+	Instance* ip = InstanceCreate(seed, HASHMAPSIZE);
+
+	bool isDrawn[52] = { false };
 	
 	CardArray* deck = malloc(sizeof(CardArray));
 
@@ -70,12 +76,56 @@ int main() {
 		printf(" | rank %c", deck->array[i]->rank);
 	}
 
+	char* c = CombineChars(3, "nr", ip->ante, ip->seed);
+
+	uint64_t* state = RandomStateFromSeed(NodeIDRandom(ip, c));
+
+	free(c);
+
+	int randomCard;
+	uint64_t min = 1;
+	uint64_t max = 0;
+	Cardtmp* tempCardPtr;
+
+	for (int i = 51; i > 0; i--) {
+		max = (uint64_t)i;
+		randomCard = (int)RandomInt(state, min, max+1);
+		randomCard -= 1;
+		printf("\nI: %d | Swap: %d", i, randomCard);
+		tempCardPtr = deck->array[randomCard];
+		deck->array[randomCard] = deck->array[i];
+		deck->array[i] = tempCardPtr;
+	}
+
+	free(state);
+
+	printf("\n\nRANDOMSIED DECK");
+	for (int i = 0; i < 52; i++) {
+		printf("\nCard %2d: suit ", i + 1);
+		PrintItem(deck->array[i]->suit);
+		printf(" | rank %c", deck->array[i]->rank);
+	}
+
+	int handSize = 8;
+	int deckSize = 52;
+
+	printf("\n\nHAND DRAWN:");
+
+	for (int i = 0; i < handSize; i++) {
+		int idx = deckSize - (handSize - i);
+		printf("\nCard %2d: suit ", i+1);
+		PrintItem(deck->array[idx]->suit);
+		printf(" | rank %c", deck->array[idx]->rank);
+	}
+
 	for (int i = 0; i < 52; i++) {
 		free(deck->array[i]);
 	}
 
 	free(deck->array);
 	free(deck);
+
+	InstanceDelete(ip);
 
 	//RunTests("testseedA.txt");
 

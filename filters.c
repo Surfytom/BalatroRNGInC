@@ -1,7 +1,7 @@
 #pragma once
 #include "filters.h"
 
-void filter(Instance* ip, bool showPacks, bool showShops) {
+void filter(Instance* ip, bool showPacks, bool showShops, bool showBosses, bool showTags) {
 	
 	int cards[5] = { 0, 0, 0, 0, 0 };
 	int packIdx = 0;
@@ -11,11 +11,15 @@ void filter(Instance* ip, bool showPacks, bool showShops) {
 
 	for (int ante = 1; ante < 4; ante++) {
 		SetAnte(ip, ante);
-		printf("\nANTE %d", ante);
+		//printf("\nANTE %d", ante);
 
-		printf("\n\tBOSS: %d", GetNextBoss(ip));
+		if (showBosses) {
+			printf("\n\tBOSS: %d", GetNextBoss(ip));
+		}
 
-		printf("\n\tTAGS: %d | %d", GetNextTag(ip), GetNextTag(ip));
+		if (showTags) {
+			printf("\n\tTAGS: %d | %d", GetNextTag(ip), GetNextTag(ip));
+		}
 
 		for (int s = 0; s < shopAmount; s++) {
 			if (showShops) {

@@ -42,13 +42,13 @@ char POSSIBLECHARS[37] = {
 	'Z',
 };
 
-bool NextSeed(char* previousChar) {
+bool NextSeed(char** previousChar) {
 
-	int size = strlen(previousChar);
+	int size = strlen(*previousChar);
 	int total = 0;
 
 	for (int i = 0; i < size; i++) {
-		total += previousChar[i];
+		total += (*previousChar)[i];
 	}
 
 	if (total == (8 * 90)) {
@@ -57,61 +57,61 @@ bool NextSeed(char* previousChar) {
 
 	if (total == (size * 90)) {
 
-		char* reAllocChar = realloc(previousChar, strlen(previousChar) + 2);
+		char* reAllocChar = realloc(*previousChar, strlen(*previousChar) + 2);
 
 		if (reAllocChar == NULL) {
 			return false;
 		}
+		
+		*previousChar = reAllocChar;
 
-		previousChar = reAllocChar;
+		int stop = strlen(*previousChar);
 
-		int stop = strlen(previousChar);
-
-		strcpy_s(previousChar, strlen(previousChar) + 2, "0");
+		strcpy_s(*previousChar, strlen(*previousChar) + 2, "0");
 
 		for (int i = 0; i < stop; i++) {
-			strcat_s(previousChar, strlen(previousChar) + 2, "0");
+			strcat_s(*previousChar, strlen(*previousChar) + 2, "0");
 		}
 
 		return true;
 	}
 
 	for (int i = size-1; i > 0; i--) {
-		if (previousChar[i] == 'Z') {
+		if ((*previousChar)[i] == 'Z') {
 			if (i > 0) {
 
-				if (previousChar[i - 1] == 'Z') {
-					previousChar[i] = '0';
+				if ((*previousChar)[i - 1] == 'Z') {
+					(*previousChar)[i] = '0';
 					continue;
 				}
 
-				if (previousChar[i - 1] == 57) {
-					previousChar[i - 1] = 64;
+				if ((*previousChar)[i - 1] == 57) {
+					(*previousChar)[i - 1] = 64;
 				}
 
-				previousChar[i - 1]++;
-				previousChar[i] = POSSIBLECHARS[1];
+				(*previousChar)[i - 1]++;
+				(*previousChar)[i] = POSSIBLECHARS[1];
 				return true;
 			}
 			else {
-				previousChar[i]++;
-				previousChar[i + 1] = POSSIBLECHARS[1];
+				(*previousChar)[i]++;
+				(*previousChar)[i + 1] = POSSIBLECHARS[1];
 				return true;
 			}
 		}
 		else {
-			if (previousChar[i] == 57) {
-				previousChar[i] = 64;
+			if ((*previousChar)[i] == 57) {
+				(*previousChar)[i] = 64;
 			}
-			previousChar[i]++;
+			(*previousChar)[i]++;
 			return true;
 		}
 	}
 
-	if (previousChar[size - 1] == 57) {
-		previousChar[size - 1] = 64;
+	if ((*previousChar)[size - 1] == 57) {
+		(*previousChar)[size - 1] = 64;
 	}
-	previousChar[size - 1]++;
+	(*previousChar)[size - 1]++;
 	return true;
 }
 
@@ -151,12 +151,12 @@ bool StartSearch(char* seed, int searchLength) {
 	if (searchLength == -1) {
 		do {
 			if (SearchSeed(seed) == false) { return false; };
-		} while (NextSeed(seed));
+		} while (NextSeed(&seed));
 	}
 	else {
 		for (int i = 0; i < searchLength; i++) {
 			if (SearchSeed(seed) == false) { return false; };
-			if (NextSeed(seed) == false) { return false; };
+			if (NextSeed(&seed) == false) { return false; };
 		}
 	}
 

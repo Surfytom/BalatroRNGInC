@@ -16,23 +16,16 @@ typedef struct CharArray {
 
 typedef struct Card {
 	int suit;
-	int rank;
+	char rank;
 	int effect;
 	int bonus;
 	int seal;
 } Card;
 
-typedef struct Cardtmp {
-	int suit;
-	char rank;
-	int effect;
-	int bonus;
-	int seal;
-} Cardtmp;
-
 typedef struct CardArray {
 	Card** array;
 	size_t size;
+	int handSize;
 } CardArray;
 
 typedef struct RateObject {
@@ -66,7 +59,7 @@ extern double BASERATES[7];
 extern char* RATETYPES[7];
 extern RateObject RATES[7];
 extern char** BASE_DECK[52];
-extern Cardtmp BASE_DECK_2[52];
+extern Card BASE_DECK_2[52];
 
 enum RATESINDEX {
 	JOKERRATE,
@@ -120,6 +113,9 @@ int GetStandardCardBonus(Instance* ip);
 int GetVoucher(Instance* ip, bool fromTag);
 int GetNextBoss(Instance* ip);
 int GetNextTag(Instance* ip);
+
+void ShuffleDeck(Instance* ip, char* shuffleSeed);
+void GetNextHand(Instance* ip, Card** cards);
 
 int UseAura(Instance* ip);
 int UseSigil(Instance* ip);

@@ -63,7 +63,7 @@ char** BASE_DECK[52] = {
 	"S_T"
 };
 
-Cardtmp BASE_DECK_2[52] = {
+Card BASE_DECK_2[52] = {
 	{CLUBS, '2', 0, 0, 0},
 	{CLUBS, '3', 0, 0, 0},
 	{CLUBS, '4', 0, 0, 0},
@@ -229,40 +229,30 @@ Instance* InstanceCreate(char* seed, size_t hashMapSize) {
 	}
 
 	ip->deck->size = 52;
+	ip->deck->handSize = 8;
 
 	ip->deck->array = calloc(ip->deck->size, sizeof(Card*));
 
-	/*
-	ip->rates = malloc(sizeof(RatesObject) * 7);
+	for (int i = 0; i < 52; i++) {
+		ip->deck->array[i] = malloc(sizeof(Card));
 
-	if (ip->rates == NULL) {
-		free(ip);
-		free(ip->seed);
-		free(ip->ante);
+		if (ip->deck->array[i] == NULL) {
+			free(ip);
+			free(ip->seed);
+			free(ip->ante);
 
-		for (int i = 0; i < ip->deck->size; i++) {
-			free(ip->deck->array[i]);
+			for (int j = 0; j < i; j++) {
+				free(ip->deck->array[j]);
+			}
+
+			free(ip->deck->array);
+			free(ip->deck);
+
+			return NULL;
 		}
 
-		free(ip->deck->array);
-		free(ip->deck);
-
-		return NULL;
+		memcpy(ip->deck->array[i], &BASE_DECK_2[i], sizeof(Card));
 	}
-
-	for (int i = 0; i < 7; i++) {
-		ip->rates[i].rate = BASERATES[i];
-		strcpy_s(ip->rates[i].type, strlen(RATETYPES[i]) + 1, RATETYPES[i]);
-	}
-	*/
-	/*
-	ip->rates->editionRate = 1;
-	ip->rates->jokerRate = 20;
-	ip->rates->tarotRate = 4;
-	ip->rates->planetRate = 4;
-	ip->rates->spectralRate = 0;
-	ip->rates->playingCardRate = 0;
-	*/
 
 	ip->locked = calloc(BOSSEND, sizeof(bool));
 
@@ -1056,6 +1046,53 @@ int GetNextTag(Instance* ip) {
 	GetCardsFromPack(ip, cards, Tags);
 
 	return cards[0];
+}
+
+void ShuffleDeck(Instance* ip, char* shuffleSeed) {
+
+	char* c = NULL;
+
+	if (shuffleSeed == "shuffle") {
+		c = CombineChars(2, shuffleSeed, ip->seed);
+	}
+	else {
+		c = CombineChars(3, shuffleSeed, ip->ante, ip->seed);
+	}
+	
+
+	uint64_t* state = RandomStateFromSeed(NodeIDRandom(ip, c));
+
+	free(c);
+
+	int randomCard;
+	uint64_t min = 1;
+	uint64_t max = 0;
+	Card* tempCardPtr;
+
+	for (int i = 51; i > 0; i--) {
+		max = (uint64_t)i;
+		randomCard = (int)RandomInt(state, min, max + 1);
+		randomCard -= 1;
+		printf("\nI: %d | Swap: %d", i, randomCard);
+		tempCardPtr = ip->deck->array[randomCard];
+		ip->deck->array[randomCard] = ip->deck->array[i];
+		ip->deck->array[i] = tempCardPtr;
+	}
+
+	free(state);
+
+	printf("\nSHUFFLED DECK");
+	for (int i = 0; i < 52; i++) {
+		printf("\nCard %2d: suit ", i + 1);
+		PrintItem(ip->deck->array[i]->suit);
+		printf(" | rank %c", ip->deck->array[i]->rank);
+	}
+}
+
+void GetNextHand(Instance* ip, Card** cards) {
+	for (int i = 0; i < ip->deck->handSize; i++) {
+		cards[i] = ip->deck->array[ip->deck->size - (ip->deck->handSize - i)];
+	}
 }
 
 int UseAura(Instance* ip) {

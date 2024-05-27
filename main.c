@@ -53,77 +53,38 @@ if (ante[0] - '0' == 1) {
 
 int main() {
 
-	char* seed = "ABC";
-
+	char* seed = "B";
+	// You have to keep track of what is discarded in each hand
+	// Then append them to the back of the deck (index 0) before shuffling at the end of each round
 	Instance* ip = InstanceCreate(seed, HASHMAPSIZE);
 
-	bool isDrawn[52] = { false };
-	
-	CardArray* deck = malloc(sizeof(CardArray));
-
-	deck->size = 52;
-
-	deck->array = calloc(deck->size, sizeof(Cardtmp*));
-
-	for (int i = 0; i < 52; i++) {
-		deck->array[i] = calloc(1, sizeof(Cardtmp));
-		memcpy(deck->array[i], &BASE_DECK_2[i], sizeof(Cardtmp));
-	}
-
-	for (int i = 0; i < 52; i++) {
-		printf("\nCard %2d: suit ", i+1);
-		PrintItem(deck->array[i]->suit);
-		printf(" | rank %c", deck->array[i]->rank);
-	}
-
-	char* c = CombineChars(3, "nr", ip->ante, ip->seed);
-
-	uint64_t* state = RandomStateFromSeed(NodeIDRandom(ip, c));
-
-	free(c);
-
-	int randomCard;
-	uint64_t min = 1;
-	uint64_t max = 0;
-	Cardtmp* tempCardPtr;
-
-	for (int i = 51; i > 0; i--) {
-		max = (uint64_t)i;
-		randomCard = (int)RandomInt(state, min, max+1);
-		randomCard -= 1;
-		printf("\nI: %d | Swap: %d", i, randomCard);
-		tempCardPtr = deck->array[randomCard];
-		deck->array[randomCard] = deck->array[i];
-		deck->array[i] = tempCardPtr;
-	}
-
-	free(state);
-
-	printf("\n\nRANDOMSIED DECK");
-	for (int i = 0; i < 52; i++) {
-		printf("\nCard %2d: suit ", i + 1);
-		PrintItem(deck->array[i]->suit);
-		printf(" | rank %c", deck->array[i]->rank);
-	}
-
-	int handSize = 8;
-	int deckSize = 52;
+	ShuffleDeck(ip, "shuffle");
+	//ShuffleDeck(ip, "nr");
+	ShuffleDeck(ip, "cashout");
 
 	printf("\n\nHAND DRAWN:");
 
-	for (int i = 0; i < handSize; i++) {
-		int idx = deckSize - (handSize - i);
-		printf("\nCard %2d: suit ", i+1);
-		PrintItem(deck->array[idx]->suit);
-		printf(" | rank %c", deck->array[idx]->rank);
+	Card* cards[10];
+
+	GetNextHand(ip, cards);
+
+	for (int i = 0; i < 8; i++) {
+		printf("\nCard %2d: suit ", i + 1);
+		PrintItem(cards[i]->suit);
+		printf(" | rank %c", cards[i]->rank);
 	}
 
-	for (int i = 0; i < 52; i++) {
-		free(deck->array[i]);
-	}
+	ShuffleDeck(ip, "cashout");
 
-	free(deck->array);
-	free(deck);
+	GetNextHand(ip, cards);
+
+	printf("\n\nHAND DRAWN:");
+
+	for (int i = 0; i < 8; i++) {
+		printf("\nCard %2d: suit ", i + 1);
+		PrintItem(cards[i]->suit);
+		printf(" | rank %c", cards[i]->rank);
+	}
 
 	InstanceDelete(ip);
 

@@ -51,11 +51,60 @@ if (ante[0] - '0' == 1) {
 // - Cards are a struct with certain attributes such as the soul
 // - You can then call a function to use these cards to see what they will reveal
 
+uint64_t factorial(uint64_t x, int iterations) {
+
+	uint64_t factorialOfX = 1;
+	for (int i = x; i > iterations; i--) {
+		factorialOfX *= i;
+	}
+
+	return factorialOfX;
+}
+
 int main() {
 
 	char* seed = "B";
 	// You have to keep track of what is discarded in each hand
 	// Then append them to the back of the deck (index 0) before shuffling at the end of each round
+
+	uint64_t deckSize = 52;
+	uint64_t choose = 5;
+
+	uint64_t fac52div5 = factorial(52, (deckSize - choose));
+
+	printf("52!/5!: % " PRIu64 "\n", fac52div5);
+
+	uint64_t second = factorial(choose, 0);
+
+	printf("second: % " PRIu64 "\n", fac52div5);
+
+	uint64_t facDeck = fac52div5 / second;
+
+	printf("combinations of choosing 5 cards from deck: %" PRIu64 "\n", facDeck);
+
+	double percent = 1.0 / facDeck;
+
+	printf("percentage chance: %0.50f\n", percent);
+
+	uint64_t a = 10;
+
+	uint64_t fac10 = factorial(10, 0);
+	uint64_t fac3 = factorial(3, 0);
+
+	printf("Factorial of 10: %" PRIu64 "\n", fac10);
+	printf("Factorial of 3: %" PRIu64 "\n", fac3);
+
+	double chance = fac10 / fac3;
+
+	printf("Factorial of 10/3: %0.5f\n", chance);
+
+	uint64_t fac10div3 = factorial(10, 3);
+
+	printf("Factorial of 10/3: %" PRIu64 "\n", fac10div3);
+
+	printf("Factorial of 10!*7!: %" PRIu64 "\n", fac10div3 * factorial(7, 0));
+
+	/*
 	Instance* ip = InstanceCreate(seed, HASHMAPSIZE);
 
 	ShuffleDeck(ip, "shuffle");
@@ -89,7 +138,7 @@ int main() {
 	InstanceDelete(ip);
 
 	//RunTests("testseedA.txt");
-
+	*/
 	// Dynamic function calling
 	/*
 	Instance* ip = InstanceCreate("ABC", HASHMAPSIZE);

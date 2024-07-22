@@ -13,6 +13,7 @@
 #include "instance.h"
 #include "searcher.h"
 #include "filters.h"
+#include "VectorLib/vector.h"
 #include "debug.h"
 
 const size_t HASHMAPSIZE = 100;
@@ -61,12 +62,111 @@ uint64_t factorial(uint64_t x, int iterations) {
 	return factorialOfX;
 }
 
+uint64_t Permute(uint64_t total, uint64_t choose) {
+	return factorial(total, (total - choose));
+}
+
+uint64_t Combine(uint64_t total, uint64_t choose) {
+
+	// total! / (total - choose)!
+	uint64_t first = factorial(total, (total - choose));
+
+	// choose!
+	uint64_t second = factorial(choose, 0);
+
+	// total! / (choose! * ((total - choose)!))
+	return first / second;
+}
+
+typedef struct Voucher1 {
+	char voucher[11];
+}Voucher1;
+
 int main() {
 
-	char* seed = "B";
+	int noOfNums = 10;
+	int noOfVouchers = 100000;
+	uint64_t* state = RandomStateFromSeed(1.0);
+
+	Voucher1* vouchers = malloc(noOfVouchers * sizeof(Voucher1));
+	Voucher1* tempVoucher = malloc(1 * sizeof(Voucher1));
+
+	clock_t start = clock();
+
+	uint64_t lowerOrUpper = 0;
+
+	for (int i = 0; i < noOfVouchers; i++) {
+		for (int j = 0; j < noOfNums; j++) {
+
+			lowerOrUpper = RandomInt(state, 0, 1);
+
+			if (lowerOrUpper == 0) {
+				tempVoucher->voucher[j] = (char)RandomInt(state, 97, 122);
+			} else {
+				tempVoucher->voucher[j] = (char)RandomInt(state, 65, 90);
+			}
+		}
+
+		tempVoucher->voucher[noOfNums] = '\0';
+		
+		vouchers[i] = *(tempVoucher);
+
+		if (i % 10000 == 0) {
+			printf("Created %d vouchers in %d ms\n", i, (int)((clock() - start) * 1000 / CLOCKS_PER_SEC));
+			printf("Voucher %d: %s\n", i, vouchers[i].voucher);
+		}
+	}
+
+	printf("Created %d vouchers in %d ms\n", noOfVouchers, (int)((clock() - start) * 1000 / CLOCKS_PER_SEC));
+
+	free(tempVoucher);
+	free(vouchers);
+	free(state);
+
+	/*
+	Vector* vec = VectorCreate(sizeof(int), 10);
+
+	int a = 10;
+	int b = 20;
+	int c = 30;
+
+	VectorAdd(vec, &a);
+	VectorAdd(vec, &b);
+	VectorAdd(vec, &c);
+
+	printf("Vector size: %d\n", (int)vec->size);
+	for (int i = 0; i < vec->size; i++) {
+		printf("Element at index %d: %d\n", i, *(int*)VectorGet(vec, i));
+	}
+
+	VectorRemove(vec, 1);
+	printf("Vector size: %d\n", (int)vec->size);
+
+	for (int i = 0; i < vec->size; i++) {
+		printf("Element at index %d: %d\n", i, *(int*)VectorGet(vec, i));
+	}
+
+	VectorDelete(vec);
+	*/
+	// Dont need all this probability stuff as you can just run the rng to find what cards could come next
+	/*
+	Instance* ip = InstanceCreate("A", HASHMAPSIZE);
+	
+	GetCards(ip);
+
+	printf("Hand Size: %d\n", ip->deck->currentHandSize);
+	for (int i = 0; i < ip->deck->currentHandSize; i++) {
+		printf("\nCard %2d: suit ", i + 1);
+		PrintItem(ip->deck->hand[i]->suit);
+		printf(" | rank %c", ip->deck->hand[i]->rank);
+	}
+
+	InstanceDelete(ip);
+	*/
+	//char* seed = "B";
 	// You have to keep track of what is discarded in each hand
 	// Then append them to the back of the deck (index 0) before shuffling at the end of each round
-
+	/*
 	uint64_t deckSize = 52;
 	uint64_t choose = 5;
 
@@ -103,7 +203,7 @@ int main() {
 	printf("Factorial of 10/3: %" PRIu64 "\n", fac10div3);
 
 	printf("Factorial of 10!*7!: %" PRIu64 "\n", fac10div3 * factorial(7, 0));
-
+	*/
 	/*
 	Instance* ip = InstanceCreate(seed, HASHMAPSIZE);
 

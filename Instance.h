@@ -26,6 +26,10 @@ typedef struct CardArray {
 	Card** array;
 	size_t size;
 	int handSize;
+	int discardCount;
+	int handCount;
+	Card** hand;
+	size_t currentHandSize;
 } CardArray;
 
 typedef struct RateObject {
@@ -116,6 +120,7 @@ int GetNextTag(Instance* ip);
 
 void ShuffleDeck(Instance* ip, char* shuffleSeed);
 void GetNextHand(Instance* ip, Card** cards);
+void GetCards(Instance* ip);
 
 int UseAura(Instance* ip);
 int UseSigil(Instance* ip);

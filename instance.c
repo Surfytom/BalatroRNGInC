@@ -230,6 +230,10 @@ Instance* InstanceCreate(char* seed, size_t hashMapSize) {
 
 	ip->deck->size = 52;
 	ip->deck->handSize = 8;
+	ip->deck->discardCount = 3;
+	ip->deck->handCount = 4;
+	ip->deck->hand = NULL;
+	ip->deck->currentHandSize = 0;
 
 	ip->deck->array = calloc(ip->deck->size, sizeof(Card*));
 
@@ -326,6 +330,12 @@ void InstanceDelete(Instance* ip) {
 	}
 
 	free(ip->deck->array);
+
+	for (int i = 0; i < ip->deck->currentHandSize; i++) {
+		free(ip->deck->hand[i]);
+	}
+
+	free(ip->deck->hand);
 	free(ip->deck);
 
 	free(ip->seed);
@@ -1058,7 +1068,6 @@ void ShuffleDeck(Instance* ip, char* shuffleSeed) {
 	else {
 		c = CombineChars(3, shuffleSeed, ip->ante, ip->seed);
 	}
-	
 
 	uint64_t* state = RandomStateFromSeed(NodeIDRandom(ip, c));
 
@@ -1089,10 +1098,51 @@ void ShuffleDeck(Instance* ip, char* shuffleSeed) {
 	}
 }
 
-void GetNextHand(Instance* ip, Card** cards) {
-	for (int i = 0; i < ip->deck->handSize; i++) {
-		cards[i] = ip->deck->array[ip->deck->size - (ip->deck->handSize - i)];
+void GetNextHand(Instance* ip, Card** cards, int handSize) {
+	for (int i = 0; i < handSize; i++) {
+		cards[i] = ip->deck->array[ip->deck->size - (handSize - i)];
 	}
+}
+
+void GetCards(Instance* ip) {
+
+	int amountOfCards = ip->deck->handSize + (5 * ip->deck->discardCount);
+
+	if (ip->deck->hand == NULL) {
+
+	}
+
+	/*
+	if (ip->deck->hand == NULL) {
+		ip->deck->hand = malloc(sizeOfPossibleCards);
+
+		if (ip->deck->hand == NULL) { return NULL; }
+
+		for (int i = 0; i < sizeOfPossibleCards; i++) {
+			ip->deck->hand[i] = malloc(sizeof(Card));
+
+			if (ip->deck->hand == NULL) { 
+
+				for (int j = 0; j < i; j++) {
+					free(ip->deck->hand[i]);
+				}
+
+				free(ip->deck->hand);
+				return NULL; 
+			}
+		}
+	}
+	else {
+		Card** reallocHand = realloc(ip->deck->hand, sizeOfPossibleCards);
+
+		if (reallocHand == NULL) { free(ip->deck->hand); return NULL; }
+
+		ip->deck->hand = reallocHand;
+	}
+	*/
+	ip->deck->currentHandSize = amountOfCards;
+
+	//GetNextHand(ip, &ip->deck->hand, sizeOfPossibleCards);
 }
 
 int UseAura(Instance* ip) {

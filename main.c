@@ -6,15 +6,14 @@
 #include <math.h>
 #include <inttypes.h>
 #include <string.h>
-#include <crtdbg.h>
 #include <time.h>
 #include <windows.h>
 
-#include "instance.h"
-#include "searcher.h"
-#include "filters.h"
-#include "VectorLib/vector.h"
-#include "debug.h"
+#include "src/instance.h"
+#include "src/searcher.h"
+#include "src/filters.h"
+#include "src/VectorLib/vector.h"
+#include "src/debug.h"
 
 const size_t HASHMAPSIZE = 100;
 
@@ -78,233 +77,9 @@ uint64_t Combine(uint64_t total, uint64_t choose) {
 	return first / second;
 }
 
-typedef struct Voucher1 {
-	char voucher[11];
-}Voucher1;
-
 int main() {
 
-	int noOfNums = 10;
-	int noOfVouchers = 100000;
-	uint64_t* state = RandomStateFromSeed(1.0);
-
-	Voucher1* vouchers = malloc(noOfVouchers * sizeof(Voucher1));
-	Voucher1* tempVoucher = malloc(1 * sizeof(Voucher1));
-
-	clock_t start = clock();
-
-	uint64_t lowerOrUpper = 0;
-
-	for (int i = 0; i < noOfVouchers; i++) {
-		for (int j = 0; j < noOfNums; j++) {
-
-			lowerOrUpper = RandomInt(state, 0, 1);
-
-			if (lowerOrUpper == 0) {
-				tempVoucher->voucher[j] = (char)RandomInt(state, 97, 122);
-			} else {
-				tempVoucher->voucher[j] = (char)RandomInt(state, 65, 90);
-			}
-		}
-
-		tempVoucher->voucher[noOfNums] = '\0';
-		
-		vouchers[i] = *(tempVoucher);
-
-		if (i % 10000 == 0) {
-			printf("Created %d vouchers in %d ms\n", i, (int)((clock() - start) * 1000 / CLOCKS_PER_SEC));
-			printf("Voucher %d: %s\n", i, vouchers[i].voucher);
-		}
-	}
-
-	printf("Created %d vouchers in %d ms\n", noOfVouchers, (int)((clock() - start) * 1000 / CLOCKS_PER_SEC));
-
-	free(tempVoucher);
-	free(vouchers);
-	free(state);
-
-	/*
-	Vector* vec = VectorCreate(sizeof(int), 10);
-
-	int a = 10;
-	int b = 20;
-	int c = 30;
-
-	VectorAdd(vec, &a);
-	VectorAdd(vec, &b);
-	VectorAdd(vec, &c);
-
-	printf("Vector size: %d\n", (int)vec->size);
-	for (int i = 0; i < vec->size; i++) {
-		printf("Element at index %d: %d\n", i, *(int*)VectorGet(vec, i));
-	}
-
-	VectorRemove(vec, 1);
-	printf("Vector size: %d\n", (int)vec->size);
-
-	for (int i = 0; i < vec->size; i++) {
-		printf("Element at index %d: %d\n", i, *(int*)VectorGet(vec, i));
-	}
-
-	VectorDelete(vec);
-	*/
-	// Dont need all this probability stuff as you can just run the rng to find what cards could come next
-	/*
-	Instance* ip = InstanceCreate("A", HASHMAPSIZE);
-	
-	GetCards(ip);
-
-	printf("Hand Size: %d\n", ip->deck->currentHandSize);
-	for (int i = 0; i < ip->deck->currentHandSize; i++) {
-		printf("\nCard %2d: suit ", i + 1);
-		PrintItem(ip->deck->hand[i]->suit);
-		printf(" | rank %c", ip->deck->hand[i]->rank);
-	}
-
-	InstanceDelete(ip);
-	*/
-	//char* seed = "B";
-	// You have to keep track of what is discarded in each hand
-	// Then append them to the back of the deck (index 0) before shuffling at the end of each round
-	/*
-	uint64_t deckSize = 52;
-	uint64_t choose = 5;
-
-	uint64_t fac52div5 = factorial(52, (deckSize - choose));
-
-	printf("52!/5!: % " PRIu64 "\n", fac52div5);
-
-	uint64_t second = factorial(choose, 0);
-
-	printf("second: % " PRIu64 "\n", fac52div5);
-
-	uint64_t facDeck = fac52div5 / second;
-
-	printf("combinations of choosing 5 cards from deck: %" PRIu64 "\n", facDeck);
-
-	double percent = 1.0 / facDeck;
-
-	printf("percentage chance: %0.50f\n", percent);
-
-	uint64_t a = 10;
-
-	uint64_t fac10 = factorial(10, 0);
-	uint64_t fac3 = factorial(3, 0);
-
-	printf("Factorial of 10: %" PRIu64 "\n", fac10);
-	printf("Factorial of 3: %" PRIu64 "\n", fac3);
-
-	double chance = fac10 / fac3;
-
-	printf("Factorial of 10/3: %0.5f\n", chance);
-
-	uint64_t fac10div3 = factorial(10, 3);
-
-	printf("Factorial of 10/3: %" PRIu64 "\n", fac10div3);
-
-	printf("Factorial of 10!*7!: %" PRIu64 "\n", fac10div3 * factorial(7, 0));
-	*/
-	/*
-	Instance* ip = InstanceCreate(seed, HASHMAPSIZE);
-
-	ShuffleDeck(ip, "shuffle");
-	//ShuffleDeck(ip, "nr");
-	ShuffleDeck(ip, "cashout");
-
-	printf("\n\nHAND DRAWN:");
-
-	Card* cards[10];
-
-	GetNextHand(ip, cards);
-
-	for (int i = 0; i < 8; i++) {
-		printf("\nCard %2d: suit ", i + 1);
-		PrintItem(cards[i]->suit);
-		printf(" | rank %c", cards[i]->rank);
-	}
-
-	ShuffleDeck(ip, "cashout");
-
-	GetNextHand(ip, cards);
-
-	printf("\n\nHAND DRAWN:");
-
-	for (int i = 0; i < 8; i++) {
-		printf("\nCard %2d: suit ", i + 1);
-		PrintItem(cards[i]->suit);
-		printf(" | rank %c", cards[i]->rank);
-	}
-
-	InstanceDelete(ip);
-
-	//RunTests("testseedA.txt");
-	*/
-	// Dynamic function calling
-	/*
-	Instance* ip = InstanceCreate("ABC", HASHMAPSIZE);
-
-	FuncWrapper func = CallFunction("filter");
-
-	(*func)(ip, true, true, true, true);
-
-	InstanceDelete(ip);
-	*/
-	/*
-	char* seed = malloc(2);
-	strcpy_s(seed, 2, "C");
-	int seedTotal = 1;
-
-	Instance* ip;
-
-	FuncWrapper func = CallFunction("filter");
-
-	clock_t startTime = clock();
-	clock_t endTime;
-	double totalTimeTaken = 0.0;
-
-	do {
-
-		if (seedTotal % 10000 == 0) {
-			endTime = clock();
-			printf("\nTime taken for seed %s: %0.25f", seed, (((double)(endTime - startTime)) / CLOCKS_PER_SEC) * 1000);
-			totalTimeTaken += (((double)(endTime - startTime)) / CLOCKS_PER_SEC) * 1000;
-			startTime = clock();
-		}
-
-		ip = InstanceCreate(seed, HASHMAPSIZE);
-
-		(*func)(ip, false, false, false, false);
-
-		InstanceDelete(ip);
-
-		seedTotal++;
-
-		NextSeed(&seed);
-
-	} while (seedTotal <= 1000000);
-
-	printf("\nAverage time taken per 10000 seeds: %0.10f", totalTimeTaken / (seedTotal / 10000));
-	
-	free(seed);
-	
-	/*
-	Instance* ip = InstanceCreate("K8D23YF1", 100);
-
-	int cards[5] = { 0 };
-
-	GetCardsFromPack(ip, cards, Mega_Arcana_Pack);
-
-	for (int i = 0; i < 5; i++) {
-		printf("\nCard %d: %d", i + 1, cards[i]);
-		cards[i] = 0;
-	}
-
-	printf("\nSoul card: %d", UseSoul(ip));
-
-	InstanceDelete(ip);
-	*/
-
-	_CrtDumpMemoryLeaks();
+	RunTests("./src/testseedA.txt");
 
 	return 0;
 }
@@ -461,10 +236,11 @@ void RunTests(char* fileName) {
 		if (strcmp(line, "voucher\n") == 0) {
 			fgets(line, 50, fp);
 			line[strcspn(line, "\n")] = 0;
-
+			
 			voucherTruth = strtol(line, &tempPtr, 10);
-
+			
 			voucherPred = GetVoucher(ip, false);
+			
 
 			if (voucherPred == voucherTruth) {
 				printf("\nVOUCHER PASSED: %d", voucherPred);

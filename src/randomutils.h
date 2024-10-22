@@ -1,6 +1,5 @@
 #ifndef RANDOMUTILS_H
 #define RANDOMUTILS_H
-#pragma once
 
 #include <stdio.h>
 #include <stdlib.h>

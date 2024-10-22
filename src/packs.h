@@ -1,7 +1,7 @@
 #ifndef PACKS_H
 #define PACKS_H
-#pragma once
 
+#include <stdio.h>
 #include <stddef.h>
 #include <inttypes.h>
 #include <stdlib.h>

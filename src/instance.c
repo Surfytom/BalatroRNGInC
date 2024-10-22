@@ -492,7 +492,7 @@ char* GetPool(Instance* ip, char* type, int typeStart, int typeEnd, int rarity, 
 
 		char* combinedChar = CombineChars(4, rarityChar, ip->ante, keyAppend, ip->seed);
 
-		int64_t* state = RandomStateFromSeed(NodeIDRandom(ip, combinedChar, ip->hashedSeed));
+		int64_t* state = RandomStateFromSeed(NodeIDRandom(ip, combinedChar));
 
 		dbllong dbl = RandomDouble(state);
 
@@ -610,7 +610,7 @@ uint64_t CreateCard(Instance* ip, char* type, int typeStart, int typeEnd, int ra
 
 		if (typeStart == TAROTSTART || typeStart == SPECTRALSTART) {
 			// Roll for soul
-			state = RandomStateFromSeed(NodeIDRandom(ip, combinedSoulChar, ip->hashedSeed));
+			state = RandomStateFromSeed(NodeIDRandom(ip, combinedSoulChar));
 			dbllong dbl = RandomDouble(state);
 			free(state);
 
@@ -620,7 +620,7 @@ uint64_t CreateCard(Instance* ip, char* type, int typeStart, int typeEnd, int ra
 		}
 		if (typeStart == PLANETSTART || typeStart == SPECTRALSTART) {
 			// Roll for black hole
-			state = RandomStateFromSeed(NodeIDRandom(ip, combinedSoulChar, ip->hashedSeed));
+			state = RandomStateFromSeed(NodeIDRandom(ip, combinedSoulChar));
 			dbllong dbl = RandomDouble(state);
 			free(state);
 
@@ -639,7 +639,7 @@ uint64_t CreateCard(Instance* ip, char* type, int typeStart, int typeEnd, int ra
 	}
 
 	char* returnKey = NULL;
-	returnKey = GetPool(ip, type, typeStart, typeEnd, rarity, keyAppend, rangeValues, returnKey);
+	returnKey = GetPool(ip, type, typeStart, typeEnd, rarity, keyAppend, rangeValues);
 
 #ifdef DEBUG
 	printf("\n return key: %s", returnKey);
@@ -836,7 +836,7 @@ void GetCardsFromPack(Instance* ip, int* cards, int packIdx) {
 					printf("\ncard: %d", cardInt);
 #endif
 
-					if (ip->locked[VOUCHERS[cardInt - (VOUCHERSTART + 1)].required] == true) {
+					if (VOUCHERS[cardInt - (VOUCHERSTART + 1)].required != -1 && ip->locked[VOUCHERS[cardInt - (VOUCHERSTART + 1)].required] == true) {
 						inCards = true;
 					}
 				}
@@ -847,7 +847,6 @@ void GetCardsFromPack(Instance* ip, int* cards, int packIdx) {
 					}
 				}
 			}
-
 			if (inCards && PACKS[packIdx].start != DECKSTART) {
 
 				char* resampleIt = malloc(sizeof(char) * 2);
@@ -951,9 +950,7 @@ int GetVoucher(Instance* ip, bool fromTag) {
 
 	uint64_t cards[1] = { 0 };
 	int returnCard = 0;
-
 	GetCardsFromPack(ip, cards, fromTag ? VouchersFromTag : Vouchers);
-
 	returnCard = cards[0];
 
 	ip->locked[returnCard] = true;

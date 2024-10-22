@@ -1,8 +1,8 @@
 #ifndef INSTANCE_H
 #define INSTANCE_H
-#pragma once
 
 #include <stdarg.h>
+#include <stdio.h>
 
 #include "HashMapLib/hashmap.h"
 #include "randomutils.h"
@@ -119,7 +119,7 @@ int GetNextBoss(Instance* ip);
 int GetNextTag(Instance* ip);
 
 void ShuffleDeck(Instance* ip, char* shuffleSeed);
-void GetNextHand(Instance* ip, Card** cards);
+void GetNextHand(Instance* ip, Card** cards, int handSize);
 void GetCards(Instance* ip);
 
 int UseAura(Instance* ip);

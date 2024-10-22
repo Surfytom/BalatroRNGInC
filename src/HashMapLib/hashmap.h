@@ -7,6 +7,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <inttypes.h>
+#include <stdio.h>
 
 #include "../debug.h"
 

@@ -2,16 +2,18 @@
 
 This repository tries to recreate the Balatro RNG system written in (LUAJIT). It takes influence from the games source code, the LUAJIT source code as well as [immolate](https://github.com/MathIsFun0/Immolate) (written in OpenCL).
 
+The simulation of the RNG system allows for efficient searching of the seed space that Balatro has, allowing players to find out what would appear in a given run without having to play through all possibilities.
+
 This project no longer supports the latest version of Balatro so predictions will likely be wrong for the latest versions. The project works on version 1.0.1g-FULL if you still have that version to play around with.
 
 ## Using The Project
 
-The project is a hobby project to try and learn/get better at the C language. Please bare in mind this project uses the gcc compiler and utilises windows specific functions meaning the project will not function on platforms with no access to <windows.h>. If you want a too see a demo of the project follow the steps below:
+The project is a hobby project to try and learn/get better at the C language. Please bear in mind this project uses the gcc compiler. Follow the steps below to use the project:
 
 ### Step 1 | Clone The Repository
 
 ```
-git clone 
+git clone https://github.com/Surfytom/BalatroRNGInC.git
 ```
 
 ### Step 2 | Build .exe With Make
@@ -42,13 +44,13 @@ FuncWrapper func = CallFunction("filter");
 InstanceDelete(ip);
 ```
 
-This code creates an Instance of the game which sets up all context needed to run a simulation of the Balatro's RNG system. Then a filter function is called that is defined in ```src/filters.c```. This defines what to search in the seed. In this case a general search is conducted looping for 1 ANTE (a normal game is 8 ANTES in length) and showing the cards that appear in the shop given no rerolls as well as the pack types that appear and the cards that appear in those packs.
+This code creates an Instance of the game which sets up all context needed to run a simulation of the Balatro's RNG system. Then a filter function is called that is defined in ```src/filters.c```. This defines what to search for in the seed. In this case a general search is conducted looping for 1 ANTE (a normal game is 8 ANTES in length) and showing the cards that appear in the shop given no rerolls as well as the pack types that appear and the cards that appear in those packs.
 
 A video of the first two shops of ANTE 1 for seed A can be seen by clicking on the image below to allow you to see how this project predicts the items in the game correctly.
 
 [![Balatro Test Case Video](https://img.youtube.com/vi/a1y7xRfzVcA/0.jpg)](https://youtu.be/a1y7xRfzVcA "Balatro Test Case Video")
 
-All the integers that are printed can be referenced to the large enum in ```src/packs.h``` to reference the general name of the item in question. For example the integer ```63``` appears as the first card in the first shop. When referencing the enum ```63``` is labelled as ```j_shoot_the_moon```. Incase you don't want to download the project and run the code to see the output it is below along with the packs.h enum references in speech marks:
+All the integers that are printed can be referenced to the large enum in ```src/packs.h``` to reference the general name of the item in question. For example the integer ```63``` appears as the first card in the first shop. When referencing the enum ```63``` is labelled as ```j_shoot_the_moon```. Incase you don't want to download the project and run the code to see the output, it is below along with the packs.h enum references in speech marks:
 
 ```
 ANTE 1
@@ -82,7 +84,7 @@ ANTE 1
                     Pack 2 type 5 "Jumbo_Celestial_Pack"
                         As Celestial Pack RNG depends on the types of
                         hands played and the project does not allow cards
-                        to be played this packs draws will be inaccurate.
+                        to be played this pack's draws will be inaccurate.
                             Card 1: 191
                             Card 2: 198
                             Card 3: 193

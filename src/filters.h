@@ -6,7 +6,7 @@
 #include "Instance.h"
 #include "debug.h"
 
-typedef void (*FuncWrapper)(Instance* ip);
+typedef void (*FuncWrapper)(Instance* ip, bool showPacks, bool showShops, bool showBosses, bool showTags);
 
 typedef struct FunctionItem {
 	const char* strName;

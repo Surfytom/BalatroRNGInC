@@ -7,9 +7,9 @@ void filter(Instance* ip, bool showPacks, bool showShops, bool showBosses, bool 
 	int packIdx = 0;
 	int jokerEdition = 0;
 	int shopAmount = 2;
-	int rerollAmount = 2;
+	int rerollAmount = 1;
 
-	for (int ante = 1; ante < 4; ante++) {
+	for (int ante = 1; ante < 2; ante++) {
 		SetAnte(ip, ante);
 
 		if (showPacks || showShops || showBosses || showTags) {

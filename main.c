@@ -7,7 +7,7 @@
 #include <inttypes.h>
 #include <string.h>
 #include <time.h>
-#include <windows.h>
+// #include <windows.h>
 
 #include "src/instance.h"
 #include "src/searcher.h"
@@ -79,7 +79,16 @@ uint64_t Combine(uint64_t total, uint64_t choose) {
 
 int main() {
 
-	RunTests("./src/testseedA.txt");
+	// RunTests("./src/testseedA.txt");
+
+	// Dynamic filter function calling
+	Instance* ip = InstanceCreate("A", HASHMAPSIZE);
+
+	FuncWrapper func = CallFunction("filter");
+
+	(*func)(ip, true, true, true, true);
+
+	InstanceDelete(ip);
 
 	return 0;
 }
